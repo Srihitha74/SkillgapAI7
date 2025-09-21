@@ -1,0 +1,124 @@
+Python
+Python 3
+Pandas
+NumPy
+SciPy
+Matplotlib
+scikit-learn
+TensorFlow
+PyTorch
+Keras
+Java
+J2EE
+Spring
+Spring Boot
+Hibernate
+Maven
+JavaScript
+JS
+ES6
+TypeScript
+Babel
+Node.js
+NodeJS
+Express.js
+React
+React.js
+ReactJS
+Redux
+Next.js
+Hooks
+Frontend
+Backend
+Full-Stack
+C
+C++
+C#
+C Programming
+HTML
+CSS
+SCSS
+SASS
+LESS
+Web Development
+SQL
+MySQL
+PostgreSQL
+Oracle
+SQLite
+T-SQL
+NoSQL
+MongoDB
+Cassandra
+Redis
+Database Design
+Docker
+Kubernetes
+K8s
+Ansible
+Terraform
+Jenkins
+Git
+GitHub
+GitLab
+CI/CD
+Continuous Integration
+Continuous Delivery
+Helm
+AWS
+Amazon Web Services
+Azure
+Microsoft Azure
+Google Cloud
+GCP
+REST
+REST API
+SOAP
+GraphQL
+Microservices
+API Development
+ETL
+Data Pipelines
+Spark
+Kafka
+Hadoop
+Machine Learning
+ML
+Deep Learning
+Natural Language Processing
+NLP
+Computer Vision
+Data Analytics
+Data Analysis
+Power BI
+Tableau
+Excel
+Business Intelligence
+Data Visualization
+Statistical Modeling
+A/B Testing
+Regression
+Clustering
+Agile
+Scrum
+Kanban
+Project Management
+Waterfall
+Planning
+Communication
+Problem-Solving
+Critical Thinking
+Time Management
+Teamwork
+Collaboration
+Leadership
+Mentoring
+Coaching
+Negotiation
+Stakeholder Management
+Continuous Learning
+Self-Starter
+Adaptability
+Fast Learner
+Regulatory Compliance
+Risk Management

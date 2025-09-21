@@ -15,7 +15,7 @@ def read_any(file_path):
 
 if __name__ == "__main__":
     # Default file = sri_resume.pdf if no argument is passed
-    file_path = "sri_resume.pdf"
+    file_path = "sri_resume.txt"
     if len(sys.argv) > 1:
         file_path = sys.argv[1]
 
