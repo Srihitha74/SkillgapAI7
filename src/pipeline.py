@@ -1,23 +1,25 @@
-import sys, os
+import sys
+import os
 from file_readers_txt import read_txt
 from file_readers_docx import read_docx
 from file_readers_pdf import read_pdf
+from section_normalizer import preprocess_sections
 from txt_cleaner import normalize_text
 from remove_personal import remove_personal
-from txt_cleaner import normalize_text
-
-cleaned = normalize_text(remove_personal(raw))
 
 def read_any(file_path):
     ext = os.path.splitext(file_path)[1].lower()
-    if ext == '.txt': return read_txt(file_path)
-    if ext == '.docx': return read_docx(file_path)
-    if ext == '.pdf': return read_pdf(file_path)
+    if ext == '.txt':
+        return read_txt(file_path)
+    if ext == '.docx':
+        return read_docx(file_path)
+    if ext == '.pdf':
+        return read_pdf(file_path)
     print("Unsupported file type:", ext)
     return ""
 
-if __name__ == "__main__":
-    # Default file = sri_resume.pdf if no argument is passed
+def main():
+    # Default file
     file_path = "sri_resume.txt"
     if len(sys.argv) > 1:
         file_path = sys.argv[1]
@@ -31,8 +33,8 @@ if __name__ == "__main__":
 
     print("\n=== BEFORE CLEANING ===\n", raw[:500], "...\n")
 
+    # Remove personal info, normalize text with section preprocessing etc.
     cleaned = normalize_text(preprocess_sections(remove_personal(raw)))
-
 
     print("\n=== AFTER CLEANING ===\n", cleaned[:500], "...\n")
 
@@ -40,3 +42,6 @@ if __name__ == "__main__":
         f.write(cleaned)
 
     print("\n✅ Saved as cleaned_sri_resume.txt")
+
+if __name__ == "__main__":
+    main()
