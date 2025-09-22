@@ -4,6 +4,9 @@ from file_readers_docx import read_docx
 from file_readers_pdf import read_pdf
 from txt_cleaner import normalize_text
 from remove_personal import remove_personal
+from txt_cleaner import normalize_text
+
+cleaned = normalize_text(remove_personal(raw))
 
 def read_any(file_path):
     ext = os.path.splitext(file_path)[1].lower()
@@ -28,7 +31,8 @@ if __name__ == "__main__":
 
     print("\n=== BEFORE CLEANING ===\n", raw[:500], "...\n")
 
-    cleaned = normalize_text(remove_personal(raw))
+    cleaned = normalize_text(preprocess_sections(remove_personal(raw)))
+
 
     print("\n=== AFTER CLEANING ===\n", cleaned[:500], "...\n")
 

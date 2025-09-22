@@ -63,12 +63,12 @@ def run_full_pipeline(raw_text, doc_name, doc_type, tmp_path=None):
             
         # B. Cleaning and Normalization
         cleaned_text = remove_personal(raw_text)
-        cleaned_text = normalize_text(cleaned_text)
-        # Assuming standardize_sections function is correctly imported and functional
-        cleaned_text = standardize_sections(cleaned_text) 
-
+        cleaned_text = normalize_text(cleaned_text)  # This internally does preprocessing and standardization
+        
+        # Debug print to inspect normalized text
+        print("Normalized text preview:\n", cleaned_text[:1000])
+        
         # C. Rule-Based Skill Extraction
-        # NOTE: Ensure you have a 'skills_list.txt' file in your working directory
         skills_file_path = "skills_list.txt" 
         extracted_skills = extract_skills(cleaned_text, skills_file_path)
         
@@ -90,6 +90,7 @@ def run_full_pipeline(raw_text, doc_name, doc_type, tmp_path=None):
             'word_count': len(cleaned_text.split()),
         })
 
+
     except Exception as e:
         results['error'] = f"Processing Error: {str(e)}"
     finally:
@@ -98,6 +99,8 @@ def run_full_pipeline(raw_text, doc_name, doc_type, tmp_path=None):
             os.unlink(tmp_path)
             
     return results
+
+
 
 # --- Wrapper to handle file uploads, which requires saving to temp file first ---
 def process_document_from_file(file_content, file_name, file_format, doc_type):

@@ -1,44 +1,38 @@
 import re
+from src.txt_cleaner import normalize_text as basic_normalize
+
+def preprocess_sections(text):
+    sections = ['EDUCATION', 'SKILLS', 'CORE COMPETENCIES', 'AREAS OF EXPERTISE',
+                'PROJECTS', 'RELEVANT PROJECTS', 'PORTFOLIO',
+                'EXPERIENCE', 'WORK HISTORY', 'PROFESSIONAL EXPERIENCE', 'INTERNSHIP']
+
+    for sec in sections:
+        text = re.sub(r'(?<![\n])(' + sec + r')', r'\n\1', text, flags=re.IGNORECASE)
+        text = re.sub(r'(' + sec + r')(?![\n])', r'\1\n', text, flags=re.IGNORECASE)
+    return text
+
 
 def standardize_sections(text):
-    # Ensure text is clean of excess spaces before searching
-    text = re.sub(r'\s{2,}', ' ', text).strip()
-    
-    # --------------------------------------------------------
-    # 1. FIX SKILLS: Avoid replacing 'my skills', 'your skills', 'gaining skills'
-    # Pattern: Look for SKILLS/COMPETENCIES that are NOT preceded by a possessive or verb
-    text = re.sub(
-        r'(?<!my\s)(?<!gaining\s)(?<!having\s)(?<!our\s)' # Negative lookbehind to exclude common prefixes
-        r'\b(SKILLS|CORE COMPETENCIES|AREAS OF EXPERTISE)\s*[:]?\b', 
-        ' === SKILLS === ', # Note the added spaces for clean separation (Fixes the last issue too)
-        text, 
-        flags=re.IGNORECASE
-    )
-    
-    # --------------------------------------------------------
-    # 2. FIX PROJECTS: Avoid replacing 'built real-world projects'
-    # Pattern: Look for PROJECTS that are NOT preceded by a verb or adjective
-    text = re.sub(
-        r'(?<!built\s)(?<!real-world\s)(?<!my\s)(?<!latest\s)' # Exclude common sentence structures
-        r'\b(PROJECTS|RELEVANT PROJECTS|PORTFOLIO)\s*[:]?\b', 
-        ' === PROJECTS === ', # Note the added spaces
-        text, 
-        flags=re.IGNORECASE
-    )
+    def replace_if_line_alone(text, section_names, replacement):
+        # The pattern matches only when section header is on a line by itself possibly with colon or dot, no other text
+        pattern = r'^\s*(' + '|'.join(section_names) + r')\s*[:.]?\s*$'
+        return re.sub(pattern, replacement, text, flags=re.IGNORECASE | re.MULTILINE)
 
-    # --------------------------------------------------------
-    # 3. FIX EXPERIENCE: Avoid replacing 'gaining practical experience'
-    # Pattern: Look for EXPERIENCE that is NOT preceded by a verb or adjective
-    text = re.sub(
-        r'(?<!gaining\s)(?<!practical\s)(?<!work\s)(?<!professional\s)' # Exclude common sentence structures
-        r'\b(EXPERIENCE|WORK HISTORY|PROFESSIONAL EXPERIENCE)\s*[:]?\b', 
-        ' === EXPERIENCE === ', # Note the added spaces
-        text, 
-        flags=re.IGNORECASE
-    )
-    
-    # --------------------------------------------------------
-    # 4. Final Cleanup: Ensure only single spaces remain after all replacements
-    text = re.sub(r'\s{2,}', ' ', text).strip() 
-    
+    text = replace_if_line_alone(text, ['EDUCATION'], '=== EDUCATION ===')
+    text = replace_if_line_alone(text, ['SKILLS', 'CORE COMPETENCIES', 'AREAS OF EXPERTISE'], '=== SKILLS ===')
+    text = replace_if_line_alone(text, ['PROJECTS', 'RELEVANT PROJECTS', 'PORTFOLIO'], '=== PROJECTS ===')
+    text = replace_if_line_alone(text, ['EXPERIENCE', 'WORK HISTORY', 'PROFESSIONAL EXPERIENCE'], '=== EXPERIENCE ===')
+
+    # Preserve line breaks
+    text = re.sub(r'[ ]{2,}', ' ', text)
+    return text.strip()
+
+
+
+
+def normalize_text(text):
+    text = basic_normalize(text)  # Unicode normalization, tabs removal, collapsing spaces
+    text = preprocess_sections(text)  # Inserts newlines before and after section headers like EDUCATION, SKILLS, etc.
+    text = standardize_sections(text)  # Converts those section headers lines to === EDUCATION === etc., preserving line breaks
     return text
+
