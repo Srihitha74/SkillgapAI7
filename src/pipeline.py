@@ -4,7 +4,7 @@ from file_readers_txt import read_txt
 from file_readers_docx import read_docx
 from file_readers_pdf import read_pdf
 from section_normalizer import preprocess_sections
-from txt_cleaner import normalize_text
+from section_normalizer import normalize_text
 from remove_personal import remove_personal
 
 def read_any(file_path):
