@@ -1,4 +1,4 @@
-from src.section_normalizer import standardize_sections
+from src.text_cleaner.section_normalizer import standardize_sections
 
 # Test cases
 test_texts = [

@@ -1,11 +1,11 @@
 import sys
 import os
-from file_readers_txt import read_txt
-from file_readers_docx import read_docx
-from file_readers_pdf import read_pdf
-from section_normalizer import preprocess_sections
-from section_normalizer import normalize_text
-from remove_personal import remove_personal
+from src.file_readers.file_readers_txt import read_txt
+from src.file_readers.file_readers_docx import read_docx
+from src.file_readers.file_readers_pdf import read_pdf
+from src.text_cleaner.section_normalizer import preprocess_sections
+from src.text_cleaner.section_normalizer import normalize_text
+from src.text_cleaner.remove_personal import remove_personal
 
 def read_any(file_path):
     ext = os.path.splitext(file_path)[1].lower()
