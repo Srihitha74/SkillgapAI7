@@ -71,44 +71,117 @@ st.set_page_config(
 # Beautiful CSS Styling (keeping the same CSS as second code)
 def load_custom_css():
     st.markdown("""
- <style>
+<style>
     /* Global Styles */
     .main {
         padding-top: 2rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
     }
     
-    /* Hero Section */
+    /* Hero Section with Animated Background */
     .hero-container {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 3rem 2rem;
-        border-radius: 20px;
+        background: linear-gradient(135deg, 
+            rgba(102, 126, 234, 0.9) 0%, 
+            rgba(118, 75, 162, 0.9) 50%,
+            rgba(102, 126, 234, 0.7) 100%);
+        padding: 4rem 2rem;
+        border-radius: 25px;
         margin-bottom: 2rem;
         text-align: center;
         color: white;
         position: relative;
         overflow: hidden;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.1),
+            0 0 100px rgba(102, 126, 234, 0.2);
+    }
+    
+    .hero-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.1) 50%, 
+            transparent 100%);
+        animation: shimmer 8s infinite linear;
+        z-index: 1;
     }
     
     .hero-title {
-        font-size: 3rem;
-        font-weight: 700;
+        font-size: 4rem;
+        font-weight: 800;
         margin-bottom: 1rem;
         animation: fadeInUp 1s ease-out;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        background: linear-gradient(135deg, #ffffff, #f0f0f0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        z-index: 2;
     }
     
     .hero-subtitle {
-        font-size: 1.3rem;
+        font-size: 1.5rem;
         opacity: 0.95;
         animation: fadeInUp 1s ease-out 0.2s;
         animation-fill-mode: both;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        position: relative;
+        z-index: 2;
+    }
+
+    /* Floating Shapes Animation */
+    .floating-shape {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        animation: float 6s ease-in-out infinite;
+        z-index: 1;
     }
     
-    /* Progress Steps */
+    .floating-shape:nth-child(1) {
+        width: 120px;
+        height: 120px;
+        top: 10%;
+        right: 10%;
+        animation-delay: 0s;
+    }
+    
+    .floating-shape:nth-child(2) {
+        width: 80px;
+        height: 80px;
+        bottom: 20%;
+        left: 15%;
+        animation-delay: 2s;
+    }
+    
+    .floating-shape:nth-child(3) {
+        width: 60px;
+        height: 60px;
+        top: 60%;
+        right: 20%;
+        animation-delay: 4s;
+    }
+
+    /* Enhanced Progress Steps */
     .progress-container {
         display: flex;
         justify-content: space-between;
-        margin: 2rem 0;
+        margin: 3rem 0;
         position: relative;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
     .progress-step {
@@ -117,225 +190,381 @@ def load_custom_css():
         position: relative;
         z-index: 2;
         cursor: pointer;
+        transition: all 0.3s ease;
     }
     
     .progress-circle {
-        width: 50px;
-        height: 50px;
+        width: 70px;
+        height: 70px;
         border-radius: 50%;
-        background: #e0e0e0;
+        background: rgba(255, 255, 255, 0.1);
         display: flex;
         align-items: center;
         justify-content: center;
         margin: 0 auto 0.5rem;
         font-weight: bold;
         transition: all 0.3s ease;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        font-size: 1.2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
     }
     
     .progress-step.active .progress-circle {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        transform: scale(1.1);
+        transform: scale(1.15);
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 
+            0 0 30px rgba(102, 126, 234, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.2);
     }
     
     .progress-step.completed .progress-circle {
-        background: #28a745;
+        background: linear-gradient(135deg, #28a745, #20c997);
         color: white;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 0 20px rgba(40, 167, 69, 0.4);
     }
     
     .progress-step.clickable .progress-circle:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        background: rgba(255, 255, 255, 0.2);
     }
     
     .progress-line {
         position: absolute;
-        top: 25px;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: #e0e0e0;
+        top: 35px;
+        left: 10%;
+        right: 10%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.2);
         z-index: 1;
+        border-radius: 2px;
     }
     
     .progress-line-active {
-        background: linear-gradient(90deg, #28a745 0%, #e0e0e0 100%);
+        background: linear-gradient(90deg, 
+            #28a745 0%, 
+            #20c997 50%, 
+            rgba(255, 255, 255, 0.2) 100%);
+        box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+    }
+
+    /* Enhanced Card Styles with Glass Morphism */
+    .card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: all 0.4s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.1),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
     }
     
-    /* Card Styles */
-    .card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
+    .card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.1), 
+            transparent);
+        transition: left 0.6s ease;
+    }
+    
+    .card:hover::before {
+        left: 100%;
     }
     
     .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        transform: translateY(-8px) scale(1.02);
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.2),
+            0 0 80px rgba(102, 126, 234, 0.3),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.2);
     }
     
     .card-header {
-        font-size: 1.3rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        color: #333;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: white;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.8rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     
-    /* Skill Tags */
+    /* Enhanced Skill Tags with 3D Effect */
     .skill-tag {
         display: inline-block;
-        padding: 0.4rem 0.8rem;
-        margin: 0.3rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
+        padding: 0.6rem 1.2rem;
+        margin: 0.4rem;
+        border-radius: 25px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
         cursor: pointer;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    .skill-tag::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.2), 
+            transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .skill-tag:hover::before {
+        left: 100%;
     }
     
     .skill-tag:hover {
-        transform: scale(1.05);
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 
+            0 8px 20px rgba(0, 0, 0, 0.3),
+            0 0 0 2px rgba(255, 255, 255, 0.1);
     }
     
     .skill-matched {
         background: linear-gradient(135deg, #28a745, #20c997);
         color: white;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
     }
     
     .skill-partial {
         background: linear-gradient(135deg, #ffc107, #fd7e14);
         color: white;
+        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
     }
     
     .skill-missing {
         background: linear-gradient(135deg, #dc3545, #e83e8c);
         color: white;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
     }
-    
-    .skill-highlight {
-        background-color: yellow;
-        padding: 2px 4px;
-        border-radius: 3px;
-    }
-    
-    /* Metric Cards */
+
+    /* Enhanced Metric Cards with Neon Glow */
     .metric-card {
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        border-radius: 15px;
-        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 2rem;
         text-align: center;
-        transition: all 0.3s ease;
+        transition: all 0.4s ease;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .metric-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, 
+            #667eea, #764ba2, #667eea, #764ba2);
+        border-radius: 22px;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    
+    .metric-card:hover::before {
+        opacity: 1;
+        animation: borderGlow 2s linear infinite;
     }
     
     .metric-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        transform: translateY(-8px) scale(1.05);
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.3),
+            0 0 60px rgba(102, 126, 234, 0.4);
     }
     
     .metric-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #ffffff, #e0e0e0);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
     
     .metric-label {
-        color: #6c757d;
-        font-size: 1rem;
-        margin-top: 0.5rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        margin-top: 0.8rem;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Enhanced Upload Area */
+    .upload-area {
+        border: 3px dashed rgba(102, 126, 234, 0.5);
+        border-radius: 20px;
+        padding: 3rem;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.05);
+        transition: all 0.4s ease;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
     }
     
-    /* Upload Area */
-    .upload-area {
-        border: 2px dashed #667eea;
-        border-radius: 15px;
-        padding: 2rem;
-        text-align: center;
-        background: #f8f9ff;
-        transition: all 0.3s ease;
+    .upload-area::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, 
+            rgba(102, 126, 234, 0.1), 
+            rgba(118, 75, 162, 0.1));
+        opacity: 0;
+        transition: opacity 0.4s ease;
+    }
+    
+    .upload-area:hover::before {
+        opacity: 1;
     }
     
     .upload-area:hover {
-        border-color: #764ba2;
-        background: #f0f2ff;
+        border-color: rgba(102, 126, 234, 0.8);
+        background: rgba(255, 255, 255, 0.1);
+        box-shadow: 
+            0 15px 30px rgba(0, 0, 0, 0.2),
+            inset 0 0 0 2px rgba(102, 126, 234, 0.3);
+        transform: translateY(-5px);
+    }
+
+    /* Enhanced Button Styles */
+    .stButton button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
     }
     
-    /* Tab Styling */
+    .stButton button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.2), 
+            transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .stButton button:hover::before {
+        left: 100%;
+    }
+    
+    .stButton button:hover {
+        transform: translateY(-3px);
+        box-shadow: 
+            0 8px 25px rgba(102, 126, 234, 0.4),
+            0 0 0 2px rgba(255, 255, 255, 0.1);
+    }
+    
+    .stButton button:active {
+        transform: translateY(-1px);
+    }
+
+    /* Enhanced Tab Styling */
     .stTabs [data-baseweb="tab-list"] {
-        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-        border-radius: 10px;
-        padding: 0.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 0.8rem;
+        gap: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
     }
     
     .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
+        background: transparent;
+        border-radius: 12px;
+        padding: 0.8rem 1.5rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.8);
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
     }
     
-    /* File Status */
-    .file-status {
-        display: flex;
-        align-items: center;
-        padding: 0.5rem;
-        margin: 0.5rem 0;
-        border-radius: 8px;
-        background: #f8f9fa;
-        
+    .stTabs [data-baseweb="tab"]:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
     }
     
-    .file-status.success {
-        background: black;
-        border-left: 4px solid #28a745;
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    /* New Animations */
+    @keyframes shimmer {
+        0% { transform: translateX(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) rotate(45deg); }
     }
     
-    .file-status.error {
-        background: #f8d7da;
-        border-left: 4px solid #dc3545;
+    @keyframes borderGlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
     
-    .file-status-icon {
-        margin-right: 0.5rem;
-        font-size: 1.2rem;
+    @keyframes float {
+        0%, 100% { 
+            transform: translateY(0px) rotate(0deg);
+        }
+        50% { 
+            transform: translateY(-20px) rotate(180deg);
+        }
     }
     
-    /* Normalization Summary */
-    .norm-summary {
-        background: #black;
-        border-radius: 10px;
-        padding: 1rem;
-        margin: 1rem 0;
-        border-left: 4px solid #2196f3;
-    }
-    
-    /* Evidence Modal */
-    .evidence-modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        z-index: 1000;
-        max-width: 600px;
-        max-height: 80vh;
-        overflow-y: auto;
-    }
-    
-    /* Animations */
     @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
         }
         to {
             opacity: 1;
@@ -343,507 +572,75 @@ def load_custom_css():
         }
     }
     
-    .fade-in {
-        animation: fadeInUp 0.6s ease-out;
-    }
-    
-    /* Heatmap Cell */
-    .heatmap-cell {
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .heatmap-cell:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    @keyframes pulse {
+        0% { 
+            box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+        }
+        70% { 
+            box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+        }
+        100% { 
+            box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+        }
     }
 
-    /* High Priority Gap */
-    .priority-gap {
-        background: #1a1a1a;
-        border-left: 4px solid #0d6efd;
-        padding: 1rem;
-        margin: 0.5rem 0;
-        border-radius: 8px;
-        color: #ffffff;
-    }
-
-    /* Specific Priority Levels */
-    .priority-gap.high {
-        border-left-color: #dc3545;
-    }
-
-    .priority-gap.medium {
-        border-left-color: #ffc107;
-    }
-
-    .priority-gap.low {
-        border-left-color: #17a2b8;
-    }
-
-    /* ===== NEW PROFESSIONAL GRADIENT STYLES ===== */
-    
-    /* Professional Gradient Backgrounds */
-    .gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-    }
-
-    .gradient-success {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-    }
-
-    .gradient-warning {
-        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-    }
-
-    .gradient-danger {
-        background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-    }
-
-    .gradient-dark {
+    /* Enhanced Sidebar */
+    .css-1d391kg {
         background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    }
+    
+    .css-1d391kg .st-emotion-cache-16idsys p {
         color: white;
-        border-radius: 15px;
-        padding: 2rem;
     }
 
-    .gradient-ocean {
-        background: linear-gradient(135deg, #2196f3 0%, #21cbf3 100%);
-        color: white;
+    /* File Status Enhancements */
+    .file-status {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        margin: 0.8rem 0;
         border-radius: 15px;
-        padding: 2rem;
-    }
-
-    .gradient-sunset {
-        background: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-    }
-
-    .gradient-forest {
-        background: linear-gradient(135deg, #2e7d32 0%, #66bb6a 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-    }
-
-    .gradient-premium {
-        background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-    }
-
-    /* Enhanced Metric Cards with Glass Effect */
-    .glass-card {
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
-        border-radius: 15px;
         border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 1.5rem;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
-        color: white;
-        text-align: center;
     }
-
-    .glass-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+    
+    .file-status:hover {
+        transform: translateX(5px);
         background: rgba(255, 255, 255, 0.15);
     }
-
-    .glass-card .metric-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #ffffff, #f0f0f0);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+    
+    .file-status.success {
+        border-left: 6px solid #28a745;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    }
+    
+    .file-status.error {
+        border-left: 6px solid #dc3545;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+    }
+    
+    .file-status-icon {
+        margin-right: 1rem;
+        font-size: 1.5rem;
+        animation: bounce 2s infinite;
     }
 
-    .glass-card .metric-label {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1rem;
-        margin-top: 0.5rem;
+    @keyframes bounce {
+        0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+        40% {transform: translateY(-10px);}
+        60% {transform: translateY(-5px);}
     }
 
-    /* Animated Gradient Border */
-    .animated-border {
-        position: relative;
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-    }
-
-    .animated-border::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-        background-size: 400%;
-        border-radius: 17px;
-        z-index: -1;
-        animation: glowing 20s linear infinite;
-        opacity: 0.7;
-        filter: blur(5px);
-    }
-
-    @keyframes glowing {
-        0% { background-position: 0 0; }
-        50% { background-position: 400% 0; }
-        100% { background-position: 0 0; }
-    }
-
-    /* Professional Button Gradients */
-    .btn-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-        cursor: pointer;
-        display: inline-block;
-        text-align: center;
-        text-decoration: none;
-    }
-
-    .btn-gradient-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-        color: white;
-    }
-
-    .btn-gradient-success {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-        cursor: pointer;
-        display: inline-block;
-        text-align: center;
-        text-decoration: none;
-    }
-
-    .btn-gradient-success:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-        color: white;
-    }
-
-    .btn-gradient-warning {
-        background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-        color: white;
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
-        cursor: pointer;
-        display: inline-block;
-        text-align: center;
-        text-decoration: none;
-    }
-
-    .btn-gradient-warning:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
-        color: white;
-    }
-
-    /* Enhanced Skill Tags with Gradients */
-    .skill-tag-premium {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        display: inline-block;
-        margin: 0.2rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-    }
-
-    .skill-tag-premium:hover {
-        transform: scale(1.05) translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    .skill-tag-gold {
-        background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-        color: #333;
-        padding: 0.4rem 0.8rem;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        display: inline-block;
-        margin: 0.2rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
-    }
-
-    .skill-tag-gold:hover {
-        transform: scale(1.05) translateY(-2px);
-        box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
-    }
-
-    /* Progress Bar Gradients */
-    .progress-gradient {
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%);
-        background-size: 200% 100%;
-        animation: shimmer 2s infinite linear;
-        border-radius: 10px;
-        height: 8px;
-        margin: 1rem 0;
-    }
-
-    @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-    }
-
-    /* Floating Animation */
-    .float-animation {
-        animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
-    }
-
-    /* Pulse Animation for Important Elements */
-    .pulse-important {
-        animation: pulse 2s infinite;
-        border-radius: 15px;
-        padding: 1rem;
-    }
-
-    @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
-    }
-
-    /* Enhanced Card with Gradient Border */
-    .card-gradient-border {
-        position: relative;
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1.5rem;
-    }
-
-    .card-gradient-border::before {
-        content: '';
-        position: absolute;
-        top: -2px;
-        left: -2px;
-        right: -2px;
-        bottom: -2px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 17px;
-        z-index: -1;
-        opacity: 0.8;
-    }
-
-    /* Stats Highlight */
-    .stats-highlight {
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-        border-left: 4px solid #667eea;
-        padding: 1rem;
-        border-radius: 8px;
-        margin: 0.5rem 0;
-    }
-
-    /* ATS Score Styles */
-    .ats-score-container {
-        text-align: center;
-        padding: 2rem;
-    }
-
-    .ats-score-circle {
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2rem;
-        font-weight: bold;
-        margin: 0 auto 1rem;
-        color: white;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .ats-score-excellent {
-        background: linear-gradient(135deg, #28a745, #20c997);
-    }
-
-    .ats-score-good {
-        background: linear-gradient(135deg, #17a2b8, #6f42c1);
-    }
-
-    .ats-score-average {
-        background: linear-gradient(135deg, #ffc107, #fd7e14);
-    }
-
-    .ats-score-poor {
-        background: linear-gradient(135deg, #dc3545, #e83e8c);
-    }
-
-    .ats-factor {
-        margin: 1rem 0;
-        padding: 1rem;
-        background: #f8f9fa;
-        border-radius: 10px;
-    }
-
-    .ats-factor-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.5rem;
-    }
-
-    .ats-factor-title {
-        font-weight: 600;
-        color: #333;
-    }
-
-    .ats-factor-score {
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-weight: bold;
-        color: white;
-    }
-
-    .ats-factor-excellent {
-        background: linear-gradient(135deg, #28a745, #20c997);
-    }
-
-    .ats-factor-good {
-        background: linear-gradient(135deg, #17a2b8, #6f42c1);
-    }
-
-    .ats-factor-average {
-        background: linear-gradient(135deg, #ffc107, #fd7e14);
-    }
-
-    .ats-factor-poor {
-        background: linear-gradient(135deg, #dc3545, #e83e8c);
-    }
-
-    /* Learning Path Styles */
-    .learning-path-item {
-        border-left: 4px solid;
-        padding-left: 1rem;
-        margin-bottom: 1.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .learning-path-item:hover {
-        transform: translateX(5px);
-    }
-
-    .learning-path-high {
-        border-left-color: #dc3545;
-        background: linear-gradient(135deg, rgba(220, 53, 69, 0.05), rgba(232, 62, 140, 0.05));
-    }
-
-    .learning-path-medium {
-        border-left-color: #ffc107;
-        background: linear-gradient(135deg, rgba(255, 193, 7, 0.05), rgba(253, 126, 20, 0.05));
-    }
-
-    .learning-path-low {
-        border-left-color: #17a2b8;
-        background: linear-gradient(135deg, rgba(23, 162, 184, 0.05), rgba(111, 66, 193, 0.05));
-    }
-
-    /* Badge Styles */
-    .badge-gradient {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 15px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        display: inline-block;
-        margin: 0 0.25rem;
-    }
-
-    .badge-success {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        color: white;
-    }
-
-    .badge-warning {
-        background: linear-gradient(135deg, #ffc107, #fd7e14);
-        color: white;
-    }
-
-    .badge-danger {
-        background: linear-gradient(135deg, #dc3545, #e83e8c);
-        color: white;
-    }
-
-    /* Section Dividers */
-    .section-divider {
-        height: 3px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
-        border: none;
-        margin: 2rem 0;
-        border-radius: 2px;
-    }
-
-    /* Text Gradients */
-    .text-gradient-primary {
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 700;
-    }
-
-    .text-gradient-success {
-        background: linear-gradient(135deg, #28a745, #20c997);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        font-weight: 700;
-    }
-
-    /* Responsive adjustments */
+    /* Responsive Design */
     @media (max-width: 768px) {
         .hero-title {
-            font-size: 2rem;
+            font-size: 2.5rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.2rem;
         }
         
         .progress-step {
@@ -851,12 +648,913 @@ def load_custom_css():
         }
         
         .progress-circle {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
+            font-size: 1rem;
         }
         
         .metric-value {
-            font-size: 2rem;
+            font-size: 2.2rem;
+        }
+        
+        .card {
+            padding: 1.5rem;
+        }
+    }
+
+    /* Scrollbar Styling */
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2, #667eea);
+    }
+        
+    /* Enhanced ATS Score Container */
+    .ats-score-container {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border-radius: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 
+            0 20px 40px rgba(0, 0, 0, 0.2),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+    
+    .ats-score-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, 
+            transparent 0%, 
+            rgba(255, 255, 255, 0.1) 50%, 
+            transparent 100%);
+        animation: shimmer 6s infinite linear;
+        z-index: 1;
+    }
+
+    /* Enhanced ATS Score Circle with Animation */
+    .ats-score-circle {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-weight: bold;
+        color: white;
+        box-shadow: 
+            0 0 50px rgba(102, 126, 234, 0.5),
+            inset 0 0 20px rgba(255, 255, 255, 0.2);
+        position: relative;
+        z-index: 2;
+        font-size: 3rem;
+        font-weight: 800;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        animation: pulseScore 2s ease-in-out infinite;
+        transition: all 0.4s ease;
+    }
+    
+    .ats-score-circle::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border-radius: 50%;
+        background: conic-gradient(
+            from 0deg,
+            #667eea,
+            #764ba2,
+            #667eea
+        );
+        z-index: -1;
+        animation: rotate 3s linear infinite;
+        opacity: 0.7;
+    }
+    
+    .ats-score-circle::after {
+        content: '';
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        right: 5px;
+        bottom: 5px;
+        border-radius: 50%;
+        background: inherit;
+        z-index: -1;
+    }
+    
+    .ats-score-circle:hover {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 
+            0 0 80px rgba(102, 126, 234, 0.8),
+            inset 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+
+    /* ATS Score Categories with Enhanced Visuals */
+    .ats-score-excellent {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        animation: pulseExcellent 2s ease-in-out infinite !important;
+    }
+    
+    .ats-score-good {
+        background: linear-gradient(135deg, #17a2b8, #6f42c1);
+        animation: pulseGood 2s ease-in-out infinite !important;
+    }
+    
+    .ats-score-average {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        animation: pulseAverage 2s ease-in-out infinite !important;
+    }
+    
+    .ats-score-poor {
+        background: linear-gradient(135deg, #dc3545, #e83e8c);
+        animation: pulsePoor 2s ease-in-out infinite !important;
+    }
+
+    /* Enhanced ATS Factor Cards */
+    .ats-factor {
+        margin: 1.5rem 0;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ats-factor::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.1), 
+            transparent);
+        transition: left 0.5s ease;
+    }
+    
+    .ats-factor:hover::before {
+        left: 100%;
+    }
+    
+    .ats-factor:hover {
+        transform: translateX(10px);
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow: 
+            0 10px 25px rgba(0, 0, 0, 0.2),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+    }
+    
+    .ats-factor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .ats-factor-title {
+        font-weight: 700;
+        color: white;
+        font-size: 1.1rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+    
+    .ats-factor-score {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: bold;
+        color: white;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ats-factor-score:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .ats-factor-excellent {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        animation: glowExcellent 3s ease-in-out infinite;
+    }
+    
+    .ats-factor-good {
+        background: linear-gradient(135deg, #17a2b8, #6f42c1);
+        animation: glowGood 3s ease-in-out infinite;
+    }
+    
+    .ats-factor-average {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        animation: glowAverage 3s ease-in-out infinite;
+    }
+    
+    .ats-factor-poor {
+        background: linear-gradient(135deg, #dc3545, #e83e8c);
+        animation: glowPoor 3s ease-in-out infinite;
+    }
+
+    /* Progress Bar for ATS Factors */
+    .ats-progress-container {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 0.5rem;
+    }
+    
+    .ats-progress-bar {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 1.5s ease-in-out;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ats-progress-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.4), 
+            transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    /* ATS Score Animations */
+    @keyframes pulseScore {
+        0%, 100% { 
+            transform: scale(1);
+            box-shadow: 
+                0 0 50px rgba(102, 126, 234, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        50% { 
+            transform: scale(1.05);
+            box-shadow: 
+                0 0 70px rgba(102, 126, 234, 0.8),
+                inset 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+    }
+    
+    @keyframes pulseExcellent {
+        0%, 100% { 
+            box-shadow: 
+                0 0 50px rgba(40, 167, 69, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        50% { 
+            box-shadow: 
+                0 0 80px rgba(40, 167, 69, 0.8),
+                inset 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+    }
+    
+    @keyframes pulseGood {
+        0%, 100% { 
+            box-shadow: 
+                0 0 50px rgba(23, 162, 184, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        50% { 
+            box-shadow: 
+                0 0 80px rgba(23, 162, 184, 0.8),
+                inset 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+    }
+    
+    @keyframes pulseAverage {
+        0%, 100% { 
+            box-shadow: 
+                0 0 50px rgba(255, 193, 7, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        50% { 
+            box-shadow: 
+                0 0 80px rgba(255, 193, 7, 0.8),
+                inset 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+    }
+    
+    @keyframes pulsePoor {
+        0%, 100% { 
+            box-shadow: 
+                0 0 50px rgba(220, 53, 69, 0.5),
+                inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        50% { 
+            box-shadow: 
+                0 0 80px rgba(220, 53, 69, 0.8),
+                inset 0 0 30px rgba(255, 255, 255, 0.3);
+        }
+    }
+    
+    @keyframes glowExcellent {
+        0%, 100% { 
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        }
+        50% { 
+            box-shadow: 0 6px 25px rgba(40, 167, 69, 0.7);
+        }
+    }
+    
+    @keyframes glowGood {
+        0%, 100% { 
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+        }
+        50% { 
+            box-shadow: 0 6px 25px rgba(23, 162, 184, 0.7);
+        }
+    }
+    
+    @keyframes glowAverage {
+        0%, 100% { 
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.4);
+        }
+        50% { 
+            box-shadow: 0 6px 25px rgba(255, 193, 7, 0.7);
+        }
+    }
+    
+    @keyframes glowPoor {
+        0%, 100% { 
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+        }
+        50% { 
+            box-shadow: 0 6px 25px rgba(220, 53, 69, 0.7);
+        }
+    }
+    
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+             
+    /* Enhanced High Priority Skill Gaps Section */
+    .priority-gaps-container {
+        background: linear-gradient(135deg, 
+            rgba(220, 53, 69, 0.1) 0%, 
+            rgba(220, 53, 69, 0.05) 100%);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 1px solid rgba(220, 53, 69, 0.3);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 
+            0 10px 30px rgba(220, 53, 69, 0.1),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    .priority-gaps-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, 
+            #dc3545, #e83e8c, #dc3545);
+        animation: borderFlow 3s linear infinite;
+    }
+
+    .priority-gaps-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(220, 53, 69, 0.3);
+    }
+
+    .priority-gaps-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .priority-gaps-count {
+        background: linear-gradient(135deg, #dc3545, #e83e8c);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        animation: pulse 2s infinite;
+    }
+
+    /* Enhanced Priority Gap Items */
+    .priority-gap {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        border-left: 6px solid;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        border-radius: 15px;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .priority-gap::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.1), 
+            transparent);
+        transition: left 0.6s ease;
+    }
+
+    .priority-gap:hover::before {
+        left: 100%;
+    }
+
+    .priority-gap:hover {
+        transform: translateX(10px) scale(1.02);
+        box-shadow: 
+            0 8px 25px rgba(0, 0, 0, 0.2),
+            0 0 30px rgba(220, 53, 69, 0.2);
+    }
+
+    /* Priority Level Specific Styles */
+    .priority-gap.high {
+        border-left-color: #dc3545;
+        background: linear-gradient(135deg, 
+            rgba(220, 53, 69, 0.15), 
+            rgba(232, 62, 140, 0.1));
+        animation: glowHigh 3s ease-in-out infinite;
+    }
+
+    .priority-gap.medium {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, 
+            rgba(255, 193, 7, 0.15), 
+            rgba(253, 126, 20, 0.1));
+        animation: glowMedium 3s ease-in-out infinite;
+    }
+
+    .priority-gap.low {
+        border-left-color: #17a2b8;
+        background: linear-gradient(135deg, 
+            rgba(23, 162, 184, 0.15), 
+            rgba(111, 66, 193, 0.1));
+        animation: glowLow 3s ease-in-out infinite;
+    }
+
+    /* Priority Gap Content */
+    .priority-gap-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+    }
+
+    .priority-gap-skill {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: white;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .priority-gap-badge {
+        padding: 0.4rem 1rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .priority-gap.high .priority-gap-badge {
+        background: linear-gradient(135deg, #dc3545, #e83e8c);
+        color: white;
+        animation: pulseRed 2s infinite;
+    }
+
+    .priority-gap.medium .priority-gap-badge {
+        background: linear-gradient(135deg, #ffc107, #fd7e14);
+        color: white;
+        animation: pulseYellow 2s infinite;
+    }
+
+    .priority-gap.low .priority-gap-badge {
+        background: linear-gradient(135deg, #17a2b8, #6f42c1);
+        color: white;
+        animation: pulseBlue 2s infinite;
+    }
+
+    .priority-gap-metrics {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .priority-metric {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        font-size: 0.9rem;
+    }
+
+    .priority-metric-label {
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+    }
+
+    .priority-metric-value {
+        color: white;
+        font-weight: 700;
+    }
+
+    .priority-gap-action {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 1rem;
+        border-radius: 10px;
+        border-left: 3px solid;
+        margin-top: 0.8rem;
+    }
+
+    .priority-gap.high .priority-gap-action {
+        border-left-color: #dc3545;
+        background: linear-gradient(135deg, 
+            rgba(220, 53, 69, 0.2), 
+            rgba(232, 62, 140, 0.1));
+    }
+
+    .priority-gap.medium .priority-gap-action {
+        border-left-color: #ffc107;
+        background: linear-gradient(135deg, 
+            rgba(255, 193, 7, 0.2), 
+            rgba(253, 126, 20, 0.1));
+    }
+
+    .priority-gap.low .priority-gap-action {
+        border-left-color: #17a2b8;
+        background: linear-gradient(135deg, 
+            rgba(23, 162, 184, 0.2), 
+            rgba(111, 66, 193, 0.1));
+    }
+
+    .action-text {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 0.95rem;
+        line-height: 1.4;
+        margin: 0;
+    }
+
+    /* Progress Bars for Skill Gaps */
+    .skill-gap-progress {
+        width: 100%;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 0.5rem 0;
+    }
+
+    .skill-gap-progress-bar {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 1s ease-in-out;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .priority-gap.high .skill-gap-progress-bar {
+        background: linear-gradient(90deg, #dc3545, #e83e8c);
+    }
+
+    .priority-gap.medium .skill-gap-progress-bar {
+        background: linear-gradient(90deg, #ffc107, #fd7e14);
+    }
+
+    .priority-gap.low .skill-gap-progress-bar {
+        background: linear-gradient(90deg, #17a2b8, #6f42c1);
+    }
+
+    .skill-gap-progress-bar::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.4), 
+            transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    /* Animations for Priority Gaps */
+    @keyframes glowHigh {
+        0%, 100% { 
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+        }
+        50% { 
+            box-shadow: 0 6px 25px rgba(220, 53, 69, 0.4);
+        }
+    }
+
+    @keyframes glowMedium {
+        0%, 100% { 
+            box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
+        }
+        50% { 
+            box-shadow: 0 6px 25px rgba(255, 193, 7, 0.4);
+        }
+    }
+
+    @keyframes glowLow {
+        0%, 100% { 
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.2);
+        }
+        50% { 
+            box-shadow: 0 6px 25px rgba(23, 162, 184, 0.4);
+        }
+    }
+
+    @keyframes pulseRed {
+        0%, 100% { 
+            transform: scale(1);
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+        50% { 
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.5);
+        }
+    }
+
+    @keyframes pulseYellow {
+        0%, 100% { 
+            transform: scale(1);
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+        }
+        50% { 
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.5);
+        }
+    }
+
+    @keyframes pulseBlue {
+        0%, 100% { 
+            transform: scale(1);
+            box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+        }
+        50% { 
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(23, 162, 184, 0.5);
+        }
+    }
+
+    /* Skill Improvement Suggestions */
+    .improvement-suggestions {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .suggestions-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: white;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .suggestion-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .suggestion-item:hover {
+        background: rgba(255, 255, 255, 0.12);
+        transform: translateX(5px);
+    }
+
+    .suggestion-icon {
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .suggestion-content {
+        flex: 1;
+    }
+
+    .suggestion-title {
+        font-weight: 600;
+        color: white;
+        margin-bottom: 0.3rem;
+    }
+
+    .suggestion-desc {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .priority-gaps-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        
+        .priority-gap-metrics {
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .priority-gap-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.8rem;
+        }
+        
+        .suggestion-item {
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+        }
+    }
+
+
+    /* Enhanced ATS Tips Section */
+    .ats-tips {
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .ats-tips::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, 
+            #667eea, #764ba2, #667eea);
+        animation: borderFlow 3s linear infinite;
+    }
+    
+    .ats-tips-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: white;
+        margin-bottom: 1.5rem;
+        text-align: center;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .ats-tip {
+        padding: 1rem;
+        margin: 0.8rem 0;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+        border-left: 4px solid #667eea;
+        transition: all 0.3s ease;
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .ats-tip:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(5px);
+        border-left: 4px solid #764ba2;
+    }
+    
+    @keyframes borderFlow {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+
+    /* ATS Score Rating Text */
+    .ats-rating-text {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 1rem 0;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        animation: fadeInUp 1s ease-out;
+    }
+    
+    .ats-rating-desc {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        margin-bottom: 2rem;
+        animation: fadeInUp 1s ease-out 0.2s;
+        animation-fill-mode: both;
+    }
+
+    /* ATS Score Celebration Effects */
+    .celebration-particle {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: gold;
+        border-radius: 50%;
+        animation: celebrate 2s ease-out forwards;
+        z-index: 3;
+    }
+    
+    @keyframes celebrate {
+        0% {
+            transform: translate(0, 0) scale(1);
+            opacity: 1;
+        }
+        100% {
+            transform: translate(var(--tx), var(--ty)) scale(0);
+            opacity: 0;
+        }
+    }
+
+    /* Responsive ATS Score */
+    @media (max-width: 768px) {
+        .ats-score-circle {
+            width: 150px;
+            height: 150px;
+            font-size: 2.5rem;
+        }
+        
+        .ats-factor-header {
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: flex-start;
+        }
+        
+        .ats-factor-score {
+            align-self: flex-start;
         }
     }
 </style>
@@ -964,109 +1662,557 @@ class EnhancedFileReader:
         return 1
 
 # Enhanced Skill Extractor with Categorization
+# Enhanced Skill Extractor with Better Partial Matching
 class EnhancedSkillExtractor:
     def __init__(self):
-        # Skill categories with examples
+        # Expanded skill categories with variations and synonyms
         self.skill_categories = {
             'technical': [
-                'Python', 'Java', 'JavaScript', 'SQL', 'Machine Learning', 'Deep Learning',
-                'TensorFlow', 'PyTorch', 'React', 'Node.js', 'Docker', 'Kubernetes',
-                'AWS', 'Azure', 'GCP', 'Git', 'CI/CD', 'Microservices', 'REST API',
-                'MongoDB', 'PostgreSQL', 'Redis', 'Elasticsearch', 'Kafka', 'Spark'
+                'Python', 'Java', 'JavaScript', 'JS', 'TypeScript', 'TS', 'SQL', 'NoSQL',
+                'Machine Learning', 'ML', 'Deep Learning', 'DL', 'AI', 'Artificial Intelligence',
+                'TensorFlow', 'TF', 'PyTorch', 'Keras', 'Scikit-learn', 'sklearn',
+                'React', 'React.js', 'Angular', 'Vue', 'Node.js', 'Express.js',
+                'Docker', 'Kubernetes', 'K8s', 'AWS', 'Amazon Web Services', 'Azure', 'GCP', 'Google Cloud',
+                'Git', 'GitHub', 'GitLab', 'CI/CD', 'Continuous Integration', 'Continuous Deployment',
+                'Microservices', 'REST API', 'GraphQL', 'MongoDB', 'PostgreSQL', 'MySQL', 'Redis',
+                'Elasticsearch', 'Kafka', 'Apache Kafka', 'Spark', 'Apache Spark', 'Hadoop',
+                'Data Science', 'Data Analysis', 'Big Data', 'Computer Vision', 'NLP', 'Natural Language Processing',
+                'C++', 'C#', 'Swift', 'Kotlin', 'Go', 'Golang', 'Rust', 'PHP', 'Ruby', 'Rails', 'Ruby on Rails',
+                'Spring', 'Spring Boot', 'Django', 'Flask', 'FastAPI', 'Laravel'
             ],
             'soft': [
-                'Communication', 'Leadership', 'Teamwork', 'Problem Solving', 'Critical Thinking',
-                'Creativity', 'Adaptability', 'Time Management', 'Project Management',
-                'Collaboration', 'Analytical Skills', 'Decision Making', 'Negotiation'
+                'Communication', 'Verbal Communication', 'Written Communication',
+                'Leadership', 'Team Leadership', 'Team Management',
+                'Teamwork', 'Collaboration', 'Cross-functional Collaboration',
+                'Problem Solving', 'Problem-solving', 'Critical Thinking', 'Analytical Thinking',
+                'Creativity', 'Innovation', 'Adaptability', 'Flexibility',
+                'Time Management', 'Project Management', 'Agile', 'Scrum', 'Kanban',
+                'Collaboration', 'Team Collaboration', 'Analytical Skills', 'Decision Making',
+                'Negotiation', 'Conflict Resolution', 'Emotional Intelligence', 'EQ',
+                'Presentation Skills', 'Public Speaking', 'Mentoring', 'Coaching',
+                'Strategic Planning', 'Business Acumen', 'Customer Service'
             ],
             'tools': [
-                'Jira', 'Confluence', 'Slack', 'Trello', 'Asana', 'Figma', 'Sketch',
-                'VS Code', 'IntelliJ', 'Eclipse', 'Postman', 'Docker Desktop',
-                'Kubernetes Dashboard', 'Grafana', 'Prometheus', 'Jenkins'
+                'Jira', 'Confluence', 'Slack', 'Microsoft Teams', 'Trello', 'Asana',
+                'Figma', 'Sketch', 'Adobe XD', 'VS Code', 'Visual Studio Code', 'IntelliJ', 'Eclipse',
+                'PyCharm', 'WebStorm', 'Postman', 'Docker Desktop', 'Kubernetes Dashboard',
+                'Grafana', 'Prometheus', 'Jenkins', 'GitLab CI', 'GitHub Actions',
+                'Tableau', 'Power BI', 'Excel', 'Microsoft Excel', 'Google Sheets',
+                'Linux', 'Unix', 'Windows', 'macOS', 'Bash', 'Shell', 'Zsh'
             ],
             'certifications': [
-                'AWS Certified', 'Azure Certified', 'Google Cloud Certified',
-                'PMP', 'Scrum Master', 'CISSP', 'CompTIA', 'Cisco Certified',
-                'Oracle Certified', 'Microsoft Certified', 'Salesforce Certified'
+                'AWS Certified', 'AWS Solutions Architect', 'Azure Certified', 'Google Cloud Certified',
+                'PMP', 'Project Management Professional', 'Scrum Master', 'CSM', 'PSM',
+                'CISSP', 'CompTIA', 'Security+', 'Network+', 'Cisco Certified', 'CCNA', 'CCNP',
+                'Oracle Certified', 'OCA', 'OCP', 'Microsoft Certified', 'MCSA', 'MCSE',
+                'Salesforce Certified', 'Administrator', 'Developer',
+                'Kubernetes Certified', 'CKAD', 'CKA', 'CKS'
             ]
         }
         
-        # Build skill lookup dictionary
+        # Build comprehensive skill lookup with variations
         self.skill_lookup = {}
+        self.skill_variations = {}
+        
         for category, skills in self.skill_categories.items():
             for skill in skills:
-                self.skill_lookup[skill.lower()] = category
+                key = skill.lower()
+                self.skill_lookup[key] = category
+                
+                # Create variations mapping
+                if ' ' in skill:
+                    # For multi-word skills, also check for acronyms and abbreviations
+                    words = skill.split()
+                    if len(words) > 1:
+                        acronym = ''.join(word[0] for word in words if word[0].isupper())
+                        if len(acronym) > 1:
+                            self.skill_variations[acronym.lower()] = key
+                
+                # Handle common variations
+                variations = self._generate_variations(skill)
+                for variation in variations:
+                    self.skill_variations[variation] = key
+    
+    def _generate_variations(self, skill):
+        """Generate common variations of a skill"""
+        variations = []
+        skill_lower = skill.lower()
+        
+        # Common substitutions and variations
+        variations_map = {
+            '.js': 'js',
+            '.net': 'net',
+            '++': 'pp',
+            '#': 'sharp',
+            ' ': '-',
+            ' ': '_',
+            ' and ': ' & ',
+            'aws ': 'amazon web services ',
+            'gcp ': 'google cloud platform ',
+            'ml ': 'machine learning ',
+            'ai ': 'artificial intelligence ',
+            'nlp ': 'natural language processing '
+        }
+        
+        # Generate variations
+        variations.append(skill_lower)
+        variations.append(skill_lower.replace(' ', ''))
+        
+        for old, new in variations_map.items():
+            if old in skill_lower:
+                variations.append(skill_lower.replace(old, new))
+                variations.append(skill_lower.replace(old, ''))
+        
+        return list(set(variations))
     
     def extract_skills(self, text, model_type='spaCy', confidence_threshold=0.6):
-        """Extract skills with categorization and confidence scores"""
+        """Enhanced skill extraction with better partial matching"""
         text_lower = text.lower()
         extracted_skills = []
+        found_skills = set()
         
-        # Extract skills based on model type
-        if model_type == 'spaCy':
-            # Simulate spaCy extraction with confidence
-            for skill, category in self.skill_lookup.items():
-                if skill in text_lower:
-                    # Calculate confidence based on context
-                    confidence = self._calculate_confidence(skill, text_lower)
-                    if confidence >= confidence_threshold:
-                        extracted_skills.append({
-                            'name': skill.title(),
-                            'category': category,
-                            'confidence': confidence,
-                            'occurrences': text_lower.count(skill),
-                            'sentences': self._find_sentences(skill, text)
-                        })
-        elif model_type == 'custom_ner':
-            # Simulate custom NER extraction
-            for skill, category in self.skill_lookup.items():
-                if skill in text_lower:
-                    confidence = min(0.9, self._calculate_confidence(skill, text_lower) + 0.1)
-                    if confidence >= confidence_threshold:
-                        extracted_skills.append({
-                            'name': skill.title(),
-                            'category': category,
-                            'confidence': confidence,
-                            'occurrences': text_lower.count(skill),
-                            'sentences': self._find_sentences(skill, text)
-                        })
-        else:  # keyword list
-            for skill, category in self.skill_lookup.items():
-                if skill in text_lower:
-                    confidence = 0.7  # Default confidence for keyword matching
-                    if confidence >= confidence_threshold:
-                        extracted_skills.append({
-                            'name': skill.title(),
-                            'category': category,
-                            'confidence': confidence,
-                            'occurrences': text_lower.count(skill),
-                            'sentences': self._find_sentences(skill, text)
-                        })
+        # Normalize text for better matching
+        normalized_text = self._normalize_text(text_lower)
+        
+        # Extract skills using multiple strategies
+        strategies = [
+            self._exact_match,
+            self._variation_match,
+            self._contextual_match,
+            self._acronym_match
+        ]
+        
+        for strategy in strategies:
+            skills_found = strategy(normalized_text, text_lower)
+            for skill_data in skills_found:
+                skill_key = skill_data['name'].lower()
+                if skill_key not in found_skills and skill_data['confidence'] >= confidence_threshold:
+                    extracted_skills.append(skill_data)
+                    found_skills.add(skill_key)
+        
+        # Sort by confidence and remove duplicates
+        extracted_skills.sort(key=lambda x: x['confidence'], reverse=True)
         
         return extracted_skills
     
-    def _calculate_confidence(self, skill, text):
-        """Calculate confidence score based on context"""
-        # Simple heuristic: more occurrences = higher confidence
+    def _exact_match(self, normalized_text, original_text):
+        """Exact matching of skills"""
+        skills_found = []
+        
+        for skill, category in self.skill_lookup.items():
+            if skill in normalized_text:
+                # Calculate confidence based on context and frequency
+                confidence = self._calculate_confidence(skill, normalized_text, 'exact')
+                occurrences = normalized_text.count(skill)
+                
+                skills_found.append({
+                    'name': self._format_skill_name(skill),
+                    'category': category,
+                    'confidence': confidence,
+                    'occurrences': occurrences,
+                    'sentences': self._find_sentences(skill, original_text),
+                    'match_type': 'exact'
+                })
+        
+        return skills_found
+    
+    def _variation_match(self, normalized_text, original_text):
+        """Match skills with variations"""
+        skills_found = []
+        
+        for variation, original_skill in self.skill_variations.items():
+            if variation in normalized_text and len(variation) > 2:
+                category = self.skill_lookup.get(original_skill, 'technical')
+                confidence = self._calculate_confidence(variation, normalized_text, 'variation')
+                occurrences = normalized_text.count(variation)
+                
+                skills_found.append({
+                    'name': self._format_skill_name(original_skill),
+                    'category': category,
+                    'confidence': confidence * 0.9,  # Slightly lower confidence for variations
+                    'occurrences': occurrences,
+                    'sentences': self._find_sentences(variation, original_text),
+                    'match_type': 'variation'
+                })
+        
+        return skills_found
+    
+    def _contextual_match(self, normalized_text, original_text):
+        """Context-based matching for partial skills"""
+        skills_found = []
+        words = normalized_text.split()
+        
+        for i, word in enumerate(words):
+            # Check for partial matches in technical terms
+            if len(word) >= 3:  # Only consider words with 3+ characters
+                for skill, category in self.skill_lookup.items():
+                    if self._is_partial_match(word, skill):
+                        confidence = self._calculate_contextual_confidence(word, skill, normalized_text, i, words)
+                        if confidence >= 0.3:  # Lower threshold for partial matches
+                            skills_found.append({
+                                'name': self._format_skill_name(skill),
+                                'category': category,
+                                'confidence': confidence,
+                                'occurrences': 1,
+                                'sentences': self._find_context_sentence(i, words, original_text),
+                                'match_type': 'contextual'
+                            })
+        
+        return skills_found
+    
+    def _acronym_match(self, normalized_text, original_text):
+        """Match acronyms and abbreviations"""
+        skills_found = []
+        
+        # Common acronym patterns
+        acronym_patterns = [
+            r'\b[a-z]{2,5}\b',  # 2-5 letter acronyms
+        ]
+        
+        import re
+        for pattern in acronym_patterns:
+            for match in re.finditer(pattern, normalized_text):
+                acronym = match.group()
+                if acronym in self.skill_variations:
+                    original_skill = self.skill_variations[acronym]
+                    category = self.skill_lookup.get(original_skill, 'technical')
+                    
+                    skills_found.append({
+                        'name': self._format_skill_name(original_skill),
+                        'category': category,
+                        'confidence': 0.7,  # Medium confidence for acronyms
+                        'occurrences': 1,
+                        'sentences': self._find_sentences(acronym, original_text),
+                        'match_type': 'acronym'
+                    })
+        
+        return skills_found
+    
+    def _is_partial_match(self, word, skill):
+        """Check if a word is a partial match for a skill"""
+        skill_words = skill.split()
+        
+        # Single word skill
+        if len(skill_words) == 1:
+            skill_word = skill_words[0]
+            return (word in skill_word or skill_word in word) and len(word) >= 3
+        
+        # Multi-word skill - check if word matches any part
+        for skill_word in skill_words:
+            if word == skill_word or (len(word) >= 3 and word in skill_word):
+                return True
+        
+        return False
+    
+    def _calculate_confidence(self, skill, text, match_type):
+        """Calculate confidence score based on multiple factors"""
+        base_confidence = 0.5
+        
+        # Frequency bonus
         occurrences = text.count(skill)
-        base_confidence = min(0.9, 0.5 + (occurrences * 0.1))
+        frequency_bonus = min(0.3, occurrences * 0.1)
         
-        # Boost confidence if skill appears in specific sections
-        if any(section in text for section in ['skills', 'experience', 'projects']):
-            base_confidence += 0.1
+        # Context bonus
+        context_bonus = 0.0
+        if any(section in text for section in ['skills', 'experience', 'projects', 'technical']):
+            context_bonus += 0.2
+        if any(section in text for section in ['education', 'certification', 'training']):
+            context_bonus += 0.1
         
-        return min(1.0, base_confidence)
+        # Match type bonus
+        type_bonus = {
+            'exact': 0.2,
+            'variation': 0.1,
+            'contextual': 0.0,
+            'acronym': 0.1
+        }.get(match_type, 0.0)
+        
+        # Length penalty for very short matches
+        length_penalty = 0.0
+        if len(skill) < 3:
+            length_penalty = -0.2
+        
+        confidence = base_confidence + frequency_bonus + context_bonus + type_bonus + length_penalty
+        
+        return min(1.0, max(0.1, confidence))
+    
+    def _calculate_contextual_confidence(self, word, skill, text, position, words):
+        """Calculate confidence for contextual/partial matches"""
+        base_confidence = 0.3
+        
+        # Check surrounding words for technical context
+        context_window = words[max(0, position-3):min(len(words), position+4)]
+        context_text = ' '.join(context_window)
+        
+        # Boost confidence if surrounded by technical terms
+        technical_indicators = ['development', 'programming', 'coding', 'software', 'engineering',
+                               'framework', 'library', 'technology', 'tool', 'platform']
+        
+        context_bonus = 0.0
+        for indicator in technical_indicators:
+            if indicator in context_text:
+                context_bonus += 0.05
+        
+        # Proximity to known skills
+        proximity_bonus = 0.0
+        for i in range(max(0, position-5), min(len(words), position+6)):
+            if words[i] in self.skill_lookup:
+                proximity_bonus += 0.02
+        
+        return min(0.8, base_confidence + context_bonus + proximity_bonus)
+    
+    def _normalize_text(self, text):
+        """Normalize text for better matching"""
+        import re
+        
+        # Remove special characters but keep important symbols
+        text = re.sub(r'[^\w\s&+#\-]', ' ', text)
+        
+        # Normalize whitespace
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Common normalizations
+        replacements = {
+            'nodejs': 'node.js',
+            'reactjs': 'react.js',
+            'angularjs': 'angular.js',
+            'vuejs': 'vue.js',
+            'aws ': 'amazon web services ',
+            'gcp ': 'google cloud platform ',
+            'azure ': 'microsoft azure ',
+        }
+        
+        for old, new in replacements.items():
+            text = text.replace(old, new)
+        
+        return text.strip().lower()
+    
+    def _format_skill_name(self, skill):
+        """Format skill name consistently"""
+        # Capitalize first letter of each word for multi-word skills
+        if ' ' in skill:
+            return ' '.join(word.capitalize() for word in skill.split())
+        else:
+            return skill.capitalize()
     
     def _find_sentences(self, skill, text):
         """Find sentences containing the skill"""
-        sentences = text.split('.')
+        import re
+        sentences = re.split(r'[.!?]+', text)
         skill_sentences = []
         
         for sentence in sentences:
             if skill.lower() in sentence.lower():
-                skill_sentences.append(sentence.strip())
+                clean_sentence = sentence.strip()
+                if clean_sentence:
+                    skill_sentences.append(clean_sentence)
         
-        return skill_sentences[:3]  # Return up to 3 sentences
+        return skill_sentences[:3]
+    
+    def _find_context_sentence(self, word_index, words, original_text):
+        """Find context sentence for partial matches"""
+        start = max(0, word_index - 5)
+        end = min(len(words), word_index + 6)
+        context_words = words[start:end]
+        
+        # Reconstruct the original case from the context
+        original_words = original_text.split()
+        if len(original_words) >= end:
+            original_context = original_words[start:end]
+            return [' '.join(original_context)]
+        
+        return [' '.join(context_words)]
+
+# Enhanced gap analysis with better partial matching
+class EnhancedGapAnalyzer:
+    def __init__(self):
+        self.similarity_threshold = 0.6
+    
+    def analyze_skills_similarity(self, resume_skills, jd_skills):
+        """Enhanced similarity analysis with better partial matching"""
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+        import numpy as np
+        
+        # Extract skill names
+        resume_skill_names = [skill['name'] if isinstance(skill, dict) else skill for skill in resume_skills]
+        jd_skill_names = [skill['name'] if isinstance(skill, dict) else skill for skill in jd_skills]
+        
+        # Create combined skill list for vectorization
+        all_skills = resume_skill_names + jd_skill_names
+        
+        # Use TF-IDF for semantic similarity
+        vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(2, 4))
+        try:
+            skill_vectors = vectorizer.fit_transform(all_skills)
+            similarity_matrix = cosine_similarity(skill_vectors[:len(resume_skill_names)], 
+                                                skill_vectors[len(resume_skill_names):])
+        except:
+            # Fallback to simple string matching
+            return self._fallback_similarity(resume_skill_names, jd_skill_names)
+        
+        # Analyze matches
+        matched_skills = []
+        partial_matches = []
+        missing_skills = []
+        
+        for j, jd_skill in enumerate(jd_skill_names):
+            best_match_index = -1
+            best_similarity = 0
+            
+            for i, resume_skill in enumerate(resume_skill_names):
+                similarity = similarity_matrix[i][j]
+                if similarity > best_similarity:
+                    best_similarity = similarity
+                    best_match_index = i
+            
+            if best_similarity >= 0.9:
+                matched_skills.append({
+                    'jd_skill': jd_skill,
+                    'resume_skill': resume_skill_names[best_match_index],
+                    'similarity': best_similarity,
+                    'match_type': 'exact'
+                })
+            elif best_similarity >= self.similarity_threshold:
+                partial_matches.append({
+                    'jd_skill': jd_skill,
+                    'resume_skill': resume_skill_names[best_match_index],
+                    'similarity': best_similarity,
+                    'match_type': 'partial'
+                })
+            else:
+                missing_skills.append({
+                    'jd_skill': jd_skill,
+                    'similarity': best_similarity,
+                    'match_type': 'missing'
+                })
+        
+        return {
+            'matched_skills': matched_skills,
+            'partial_matches': partial_matches,
+            'missing_skills': missing_skills,
+            'similarity_matrix': similarity_matrix,
+            'overall_score': self._calculate_overall_score(matched_skills, partial_matches, jd_skills)
+        }
+    
+    def _fallback_similarity(self, resume_skills, jd_skills):
+        """Fallback similarity calculation using string matching"""
+        from difflib import SequenceMatcher
+        
+        matched_skills = []
+        partial_matches = []
+        missing_skills = []
+        
+        for jd_skill in jd_skills:
+            best_match = None
+            best_similarity = 0
+            
+            for resume_skill in resume_skills:
+                similarity = SequenceMatcher(None, jd_skill.lower(), resume_skill.lower()).ratio()
+                if similarity > best_similarity:
+                    best_similarity = similarity
+                    best_match = resume_skill
+            
+            if best_similarity >= 0.9:
+                matched_skills.append({
+                    'jd_skill': jd_skill,
+                    'resume_skill': best_match,
+                    'similarity': best_similarity,
+                    'match_type': 'exact'
+                })
+            elif best_similarity >= self.similarity_threshold:
+                partial_matches.append({
+                    'jd_skill': jd_skill,
+                    'resume_skill': best_match,
+                    'similarity': best_similarity,
+                    'match_type': 'partial'
+                })
+            else:
+                missing_skills.append({
+                    'jd_skill': jd_skill,
+                    'similarity': best_similarity,
+                    'match_type': 'missing'
+                })
+        
+        return {
+            'matched_skills': matched_skills,
+            'partial_matches': partial_matches,
+            'missing_skills': missing_skills,
+            'similarity_matrix': None,
+            'overall_score': self._calculate_overall_score(matched_skills, partial_matches, jd_skills)
+        }
+    
+    def _calculate_overall_score(self, matched_skills, partial_matches, jd_skills):
+        """Calculate overall match score"""
+        if not jd_skills:
+            return 0
+        
+        exact_match_score = len(matched_skills) * 1.0
+        partial_match_score = len(partial_matches) * 0.5
+        
+        total_score = (exact_match_score + partial_match_score) / len(jd_skills)
+        return min(1.0, total_score) * 100
+
+# Update the main analyzer class
+class AISkillGapAnalyzer:
+    def __init__(self):
+        self.logger = self._setup_logger()
+        
+        # Initialize enhanced components
+        self.file_reader = EnhancedFileReader()
+        self.skill_extractor = EnhancedSkillExtractor()
+        self.gap_analyzer = EnhancedGapAnalyzer()
+        self.visualizer = EnhancedVisualizer()
+        self.report_generator = ReportGenerator()
+        
+        # Initialize Milestone 3 components if available
+        if MILESTONE3_AVAILABLE:
+            try:
+                self.encoder = SentenceBERTEncoder()
+                self.calculator = SimilarityCalculator()
+                self.analyzer = SkillGapAnalyzer(self.encoder, self.calculator)
+                self.learning_generator = LearningPathGenerator()
+            except Exception as e:
+                self.logger.warning(f"Failed to initialize Milestone 3 components: {e}")
+                self.analyzer = None
+                self.learning_generator = None
+        else:
+            self.analyzer = None
+            self.learning_generator = None
+        
+        # Initialize ATS Score Checker
+        self.ats_checker = ATSScoreChecker()
+    
+    def analyze_gap(self, resume_skills, jd_skills):
+        """Enhanced gap analysis with better partial matching"""
+        # Use enhanced gap analyzer for better results
+        result = self.gap_analyzer.analyze_skills_similarity(resume_skills, jd_skills)
+        
+        # Add priority gaps
+        result['priority_gaps'] = self._generate_priority_gaps(
+            result['missing_skills'], 
+            [skill['name'] if isinstance(skill, dict) else skill for skill in jd_skills]
+        )
+        
+        return result
+
+# Enhanced debugging function
+def debug_skill_extraction():
+    """Debug function to test skill extraction"""
+    test_text = """
+    I have experience with Python, JavaScript, and React.js. 
+    Worked on machine learning projects using TensorFlow and scikit-learn.
+    Familiar with AWS services including EC2 and S3. 
+    Used Docker and Kubernetes for containerization.
+    """
+    
+    extractor = EnhancedSkillExtractor()
+    skills = extractor.extract_skills(test_text, 'spaCy', 0.3)
+    
+    print("Extracted Skills:")
+    for skill in skills:
+        print(f"- {skill['name']} ({skill['category']}) - Confidence: {skill['confidence']:.2f} - Type: {skill['match_type']}")
+
 
 # Fallback Visualization Class - MODIFIED TO USE MILESTONE 3
 class FallbackVisualizer:
@@ -2777,7 +3923,7 @@ def render_ats_score():
     
     # Calculate ATS score if not already done
     if not st.session_state.ats_score:
-        with st.spinner("Analyzing your resume for ATS compatibility..."):
+        with st.spinner("🎯 Analyzing your resume for ATS compatibility..."):
             ats_result = analyzer.ats_checker.calculate_ats_score(
                 st.session_state.cleaned_resume,
                 st.session_state.cleaned_jd,
@@ -2787,46 +3933,52 @@ def render_ats_score():
             st.session_state.ats_score = ats_result['overall_score']
             st.session_state.ats_analysis = ats_result
     
-    # Display overall ATS score
+    # Display overall ATS score with enhanced visuals
     score = st.session_state.ats_score
+    score_percentage = int(score * 100)
     score_category = st.session_state.ats_analysis['score_category']
     
     # Determine score color and text
     if score_category == 'excellent':
         score_class = 'ats-score-excellent'
-        score_text = 'Excellent'
+        score_text = '🎉 Excellent!'
         score_desc = 'Your resume is highly optimized for ATS systems'
+        emoji = "🚀"
     elif score_category == 'good':
         score_class = 'ats-score-good'
-        score_text = 'Good'
+        score_text = '👍 Good Job!'
         score_desc = 'Your resume is well-optimized for ATS systems'
+        emoji = "⭐"
     elif score_category == 'average':
         score_class = 'ats-score-average'
-        score_text = 'Average'
+        score_text = '💡 Needs Improvement'
         score_desc = 'Your resume has some ATS optimization issues'
+        emoji = "📝"
     else:
         score_class = 'ats-score-poor'
-        score_text = 'Poor'
+        score_text = '⚠️ Requires Attention'
         score_desc = 'Your resume needs significant ATS optimization'
+        emoji = "🔧"
     
-    # Display score circle
+    # Display enhanced score circle
     st.markdown(f"""
     <div class="ats-score-container">
         <div class="ats-score-circle {score_class}">
-            {int(score * 100)}%
+            {score_percentage}%
         </div>
-        <h3>{score_text}</h3>
-        <p>{score_desc}</p>
+        <h3 class="ats-rating-text">{emoji} {score_text}</h3>
+        <p class="ats-rating-desc">{score_desc}</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Display factor scores
-    st.subheader("ATS Optimization Factors")
+    # Display factor scores with progress bars
+    st.subheader("📊 ATS Optimization Factors")
     
     factor_scores = st.session_state.ats_analysis['factor_scores']
     
     for factor_name, factor_data in factor_scores.items():
         factor_score = factor_data['score']
+        factor_percentage = int(factor_score * 100)
         factor_category = factor_data['category']
         
         # Determine factor score color
@@ -2839,62 +3991,67 @@ def render_ats_score():
         else:
             factor_class = 'ats-factor-poor'
         
-        # Display factor
+        # Display factor with progress bar
         st.markdown(f"""
         <div class="ats-factor">
             <div class="ats-factor-header">
                 <div class="ats-factor-title">{factor_name.replace('_', ' ').title()}</div>
-                <div class="ats-factor-score {factor_class}">{int(factor_score * 100)}%</div>
+                <div class="ats-factor-score {factor_class}">{factor_percentage}%</div>
+            </div>
+            <div class="ats-progress-container">
+                <div class="ats-progress-bar {factor_class}" style="width: {factor_percentage}%"></div>
             </div>
         </div>
         """, unsafe_allow_html=True)
         
         # Display recommendations
         if factor_data['recommendations']:
-            with st.expander(f"Recommendations for {factor_name.replace('_', ' ').title()}"):
+            with st.expander(f"💡 Recommendations for {factor_name.replace('_', ' ').title()}"):
                 for rec in factor_data['recommendations']:
                     st.write(f"• {rec}")
     
-    # Display missing keywords only if there are any
+    # Display missing keywords with enhanced styling
     if st.session_state.ats_analysis['missing_keywords']:
-        st.markdown('<div class="ats-missing-keywords">', unsafe_allow_html=True)
-        st.markdown('<div class="ats-missing-keywords-title">Missing Keywords</div>', unsafe_allow_html=True)
+        st.markdown("---")
+        st.subheader("🔍 Missing Keywords")
         st.markdown("Consider adding these keywords from the job description to your resume:")
         
         missing_keywords = st.session_state.ats_analysis['missing_keywords']
-        keyword_tags = "".join([
-            f'<span class="skill-tag skill-missing">{keyword}</span>'
-            for keyword in missing_keywords
-        ])
-        st.markdown(keyword_tags, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        keyword_html = "<div style='margin: 1rem 0;'>"
+        for keyword in missing_keywords[:8]:  # Limit to 8 keywords for better display
+            keyword_html += f'<span class="skill-tag skill-missing" style="margin: 0.3rem; animation: glowPoor 3s ease-in-out infinite;">{keyword}</span>'
+        keyword_html += "</div>"
+        st.markdown(keyword_html, unsafe_allow_html=True)
     
-    # Display formatting issues only if there are any
+    # Display formatting issues
     if st.session_state.ats_analysis['formatting_issues']:
-        st.markdown('<div class="ats-formatting-issues">', unsafe_allow_html=True)
-        st.markdown('<div class="ats-formatting-issues-title">Formatting Issues</div>', unsafe_allow_html=True)
+        st.markdown("---")
+        st.subheader("⚙️ Formatting Issues")
         for issue in st.session_state.ats_analysis['formatting_issues']:
-            st.markdown(f'<div class="ats-formatting-issue">- {issue}</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="ats-tip">⚠️ {issue}</div>', unsafe_allow_html=True)
     
-    # ATS optimization tips
-    st.markdown('<div class="ats-tips">', unsafe_allow_html=True)
-    st.markdown('<div class="ats-tips-title">General ATS Optimization Tips</div>', unsafe_allow_html=True)
+    # Enhanced ATS optimization tips
+    st.markdown("---")
+    st.markdown("""
+    <div class="ats-tips">
+        <div class="ats-tips-title">💎 Pro ATS Optimization Tips</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
     tips = [
-        "Use Standard Formatting: Avoid tables, columns, and special characters that ATS systems can't parse.",
-        "Include Keywords: Mirror the language and keywords from the job description.",
-        "Use Standard Section Headers: Use common section titles like \"Experience\", \"Education\", \"Skills\".",
-        "Quantify Achievements: Use numbers and metrics to demonstrate your impact.",
-        "Keep It Simple: Use a clean, single-column layout with standard fonts.",
-        "Avoid Headers/Footers: ATS systems may not read content in headers or footers.",
-        "Use Standard Bullet Points: Stick to standard bullet points (- or *) instead of special characters.",
-        "Save as Text-Based PDF: Ensure your PDF is text-based, not image-based."
+        "✨ Use Standard Formatting: Avoid tables, columns, and special characters that ATS systems can't parse",
+        "🎯 Include Keywords: Mirror the language and keywords from the job description",
+        "📝 Use Standard Section Headers: Use common section titles like 'Experience', 'Education', 'Skills'",
+        "📊 Quantify Achievements: Use numbers and metrics to demonstrate your impact",
+        "🎨 Keep It Clean: Use a simple, single-column layout with standard fonts",
+        "🚫 Avoid Headers/Footers: ATS systems may not read content in headers or footers",
+        "• Use Standard Bullets: Stick to standard bullet points instead of special characters",
+        "📄 Save as Text-Based PDF: Ensure your PDF is text-based, not image-based"
     ]
     
     for tip in tips:
-        st.markdown(f'<div class="ats-tip">- {tip}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="ats-tip">{tip}</div>', unsafe_allow_html=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 # Export Functions
