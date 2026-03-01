@@ -3432,7 +3432,7 @@ def render_sidebar():
         st.markdown("---")
         
         # Reset button
-        if st.button("🔄 Start New Analysis", type="secondary"):
+        if st.button("🔄 Start New Analysis", type="secondary", key="reset_analysis"):
             for key in list(st.session_state.keys()):
                 if key != 'current_step':
                     del st.session_state[key]
@@ -3464,18 +3464,21 @@ def render_file_upload():
     
     with col1:
         st.markdown('<div class="upload-area">', unsafe_allow_html=True)
-        st.markdown("### 📋 Resume")
-        resume_file = st.file_uploader(
-            "Upload your resume",
+        st.markdown("### 📋 Resume(s)")
+        resume_files = st.file_uploader(
+            "Upload your resumes (multiple allowed)",
             type=['pdf', 'docx', 'txt'],
+            accept_multiple_files=True,
             key="resume_upload",
             label_visibility="collapsed"
         )
         st.markdown('</div>', unsafe_allow_html=True)
         
-        if resume_file:
-            st.session_state.resume_file = resume_file
-            st.success(f"✅ Resume uploaded: {resume_file.name}")
+        if resume_files:
+            st.session_state.resume_files = resume_files
+            st.success(f"✅ {len(resume_files)} resume(s) uploaded:")
+            for f in resume_files:
+                st.write(f"- {f.name}")
     
     with col2:
         st.markdown('<div class="upload-area">', unsafe_allow_html=True)
@@ -3507,7 +3510,7 @@ def render_file_upload():
     st.markdown('</div>', unsafe_allow_html=True)
     
     # Process button
-    if (st.session_state.resume_file or st.session_state.resume_text) and \
+    if (st.session_state.get('resume_files') or st.session_state.resume_text) and \
        (st.session_state.jd_file or st.session_state.jd_text):
         if st.button("🚀 Process Documents", type="primary", use_container_width=True):
             process_documents()
@@ -3522,51 +3525,9 @@ def process_documents():
             # Clear previous status
             st.session_state.file_status = []
             
-            # Process Resume
-            status_text.text("Processing resume...")
-            progress_bar.progress(20)
-            
-            if st.session_state.resume_file:
-                resume_result = analyzer.process_file(st.session_state.resume_file, "resume")
-                st.session_state.file_status.append(resume_result['file_status'])
-            else:
-                resume_result = {
-                    'success': True,
-                    'raw_text': st.session_state.resume_text,
-                    'cleaned_text': st.session_state.resume_text,
-                    'skills': analyzer.skill_extractor.extract_skills(
-                        st.session_state.resume_text,
-                        st.session_state.selected_model,
-                        st.session_state.confidence_threshold
-                    ),
-                    'file_status': {
-                        'file_name': "Pasted Resume",
-                        'file_type': 'TXT',
-                        'parse_status': 'success',
-                        'status_icon': '✅'
-                    },
-                    'normalization_summary': {
-                        'original_length': len(st.session_state.resume_text),
-                        'cleaned_length': len(st.session_state.resume_text),
-                        'removed_lines': 0,
-                        'removed_chars': 0,
-                        'ocr_used': False,
-                        'ocr_confidence': 1.0
-                    }
-                }
-            
-            if resume_result['success']:
-                st.session_state.cleaned_resume = resume_result['cleaned_text']
-                st.session_state.resume_skills = resume_result['skills']
-                st.session_state.normalization_summary['resume'] = resume_result['normalization_summary']
-                progress_bar.progress(40)
-            else:
-                st.error(f"Error processing resume: {resume_result['error']}")
-                return
-            
-            # Process Job Description
+            # Process Job Description first (only once)
             status_text.text("Processing job description...")
-            progress_bar.progress(60)
+            progress_bar.progress(10)
             
             if st.session_state.jd_file:
                 jd_result = analyzer.process_file(st.session_state.jd_file, "jd")
@@ -3601,26 +3562,151 @@ def process_documents():
                 st.session_state.cleaned_jd = jd_result['cleaned_text']
                 st.session_state.jd_skills = jd_result['skills']
                 st.session_state.normalization_summary['jd'] = jd_result['normalization_summary']
-                progress_bar.progress(80)
+                progress_bar.progress(30)
             else:
                 st.error(f"Error processing job description: {jd_result['error']}")
                 return
             
-            # Update state
-            st.session_state.current_step = 2
+            # Process ALL resumes
+            resume_files = st.session_state.get('resume_files', [])
+            resume_text = st.session_state.get('resume_text')
+            
+            # Store results for each resume
+            all_resume_results = []
+            
+            if resume_files:
+                total_resumes = len(resume_files)
+                for idx, resume_file in enumerate(resume_files):
+                    status_text.text(f"Processing resume {idx+1} of {total_resumes}...")
+                    progress = 30 + (idx * 70 // total_resumes)
+                    progress_bar.progress(progress)
+                    
+                    resume_result = analyzer.process_file(resume_file, "resume")
+                    resume_result['file_name'] = resume_file.name
+                    all_resume_results.append(resume_result)
+            elif resume_text:
+                status_text.text("Processing pasted resume...")
+                progress_bar.progress(60)
+                resume_result = {
+                    'success': True,
+                    'raw_text': resume_text,
+                    'cleaned_text': resume_text,
+                    'skills': analyzer.skill_extractor.extract_skills(
+                        resume_text,
+                        st.session_state.selected_model,
+                        st.session_state.confidence_threshold
+                    ),
+                    'file_status': {
+                        'file_name': "Pasted Resume",
+                        'file_type': 'TXT',
+                        'parse_status': 'success',
+                        'status_icon': '✅'
+                    },
+                    'normalization_summary': {
+                        'original_length': len(resume_text),
+                        'cleaned_length': len(resume_text),
+                        'removed_lines': 0,
+                        'removed_chars': 0,
+                        'ocr_used': False,
+                        'ocr_confidence': 1.0
+                    }
+                }
+                resume_result['file_name'] = "Pasted Resume"
+                all_resume_results.append(resume_result)
+            
+            progress_bar.progress(100)
+            
+            # Store all resume results
+            st.session_state.all_resume_results = all_resume_results
+            
+            # Set first resume as active for backward compatibility
+            if all_resume_results and all_resume_results[0]['success']:
+                st.session_state.cleaned_resume = all_resume_results[0]['cleaned_text']
+                st.session_state.resume_skills = all_resume_results[0]['skills']
+                st.session_state.normalization_summary['resume'] = all_resume_results[0]['normalization_summary']
+                st.session_state.file_status.extend([r['file_status'] for r in all_resume_results])
+            
+            # Perform gap analysis for each resume
+            st.session_state.all_analysis_results = []
+            for resume_result in all_resume_results:
+                if resume_result['success']:
+                    analysis = analyzer.analyze_gap(resume_result['skills'], st.session_state.jd_skills)
+                    st.session_state.all_analysis_results.append({
+                        'file_name': resume_result['file_name'],
+                        'skills': resume_result['skills'],
+                        'analysis': analysis
+                    })
+            
+            # Pre-generate learning paths for each resume
+            st.session_state.all_learning_paths = []
+            for resume_data in st.session_state.all_analysis_results:
+                analysis = resume_data.get('analysis')
+                priority_gaps = analysis.get('priority_gaps', []) if analysis else []
+                
+                learning_path = []
+                for gap in priority_gaps[:5]:
+                    skill_name = gap['skill']
+                    priority = gap['priority']
+                    estimated_time = '4-6 weeks' if priority == 'high' else '2-4 weeks'
+                    
+                    resources = [
+                        f"Online course: {skill_name} for Beginners",
+                        f"Practice projects on {skill_name}",
+                        f"Certification: {skill_name} Professional" if skill_name not in ['Communication', 'Leadership'] else f"Workshop: {skill_name} Training"
+                    ]
+                    
+                    learning_path.append({
+                        'skill': skill_name,
+                        'priority': priority,
+                        'importance': gap['importance'],
+                        'estimated_time': estimated_time,
+                        'resources': resources,
+                        'action': gap.get('suggested_action', '')
+                    })
+                
+                st.session_state.all_learning_paths.append({
+                    'file_name': resume_data['file_name'],
+                    'learning_path': learning_path
+                })
+            
+            # Pre-calculate ATS scores for each resume
+            st.session_state.all_ats_results = []
+            for resume_result in all_resume_results:
+                if resume_result['success']:
+                    try:
+                        ats_result = analyzer.ats_checker.calculate_ats_score(
+                            resume_result['cleaned_text'],
+                            st.session_state.cleaned_jd,
+                            resume_result['skills'],
+                            st.session_state.jd_skills
+                        )
+                        st.session_state.all_ats_results.append({
+                            'file_name': resume_result['file_name'],
+                            'ats_result': ats_result
+                        })
+                    except Exception as e:
+                        st.session_state.all_ats_results.append({
+                            'file_name': resume_result['file_name'],
+                            'ats_result': None,
+                            'error': str(e)
+                        })
+            
             st.session_state.processing_complete = True
             st.session_state.milestone1_complete = True
             st.session_state.milestone2_complete = True
+            st.session_state.processed_multiple_resumes = len(all_resume_results) > 1
             st.session_state.max_step_reached = 2
-            status_text.text("✅ Processing complete!")
-            st.success("🎉 Documents processed successfully!")
+            
+            # Navigate to step 2 (gap analysis will be done automatically)
+            st.session_state.current_step = 2
+            
+            st.success(f"✅ Processed {len(all_resume_results)} resume(s) against job description!")
             st.rerun()
             
         except Exception as e:
-            st.error(f"Processing failed: {str(e)}")
-        finally:
-            progress_bar.empty()
-            status_text.empty()
+            st.error(f"Error processing documents: {str(e)}")
+            import traceback
+            st.error(traceback.format_exc())
 
 # Step 2: File Status and Text Preview
 def render_file_status():
@@ -3747,29 +3833,54 @@ def render_skill_extraction():
 def perform_gap_analysis():
     with st.spinner("🔍 Analyzing skill gaps..."):
         try:
-            result = analyzer.analyze_gap(st.session_state.resume_skills, st.session_state.jd_skills)
-            
-            if result:
-                st.session_state.analysis_result = result
+            # Check if we have multiple resumes already processed
+            if st.session_state.get('all_analysis_results'):
+                # Already processed during document processing
                 st.session_state.current_step = 3
                 st.session_state.milestone3_complete = True
                 st.session_state.max_step_reached = 3
                 st.success("✅ Gap analysis complete!")
-                st.rerun()
             else:
-                st.error("❌ Analysis failed. Please try again.")
+                # Single resume processing (backward compatibility)
+                result = analyzer.analyze_gap(st.session_state.resume_skills, st.session_state.jd_skills)
+                
+                if result:
+                    st.session_state.analysis_result = result
+                    st.session_state.current_step = 3
+                    st.session_state.milestone3_complete = True
+                    st.session_state.max_step_reached = 3
+                    st.success("✅ Gap analysis complete!")
+                    st.rerun()
+                else:
+                    st.error("❌ Analysis failed. Please try again.")
         except Exception as e:
             st.error(f"Analysis error: {str(e)}")
 
 def render_gap_analysis():
-    if not st.session_state.analysis_result:
-        return
-    
-    result = st.session_state.analysis_result
-    
-    # Metrics Dashboard
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-header">📊 Gap Analysis Results</div>', unsafe_allow_html=True)
+    # Check if we have multiple resume results
+    if st.session_state.get('all_analysis_results') and len(st.session_state.all_analysis_results) > 1:
+        # Display multiple resume results
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown('<div class="card-header">📊 Skill Gap Analysis Results - All Resumes</div>', unsafe_allow_html=True)
+        
+        # Create tabs for each resume
+        resume_tabs = st.tabs([f"📄 {r['file_name']}" for r in st.session_state.all_analysis_results])
+        
+        for idx, (tab, resume_data) in enumerate(zip(resume_tabs, st.session_state.all_analysis_results)):
+            with tab:
+                result = resume_data['analysis']
+                render_single_gap_analysis(resume_data['file_name'], result, resume_data['skills'])
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    elif st.session_state.analysis_result:
+        # Single resume - use existing display
+        render_single_gap_analysis(None, st.session_state.analysis_result, st.session_state.resume_skills)
+
+
+def render_single_gap_analysis(file_name, result, resume_skills):
+    """Helper function to render gap analysis for a single resume"""
+    if file_name:
+        st.markdown(f"### 📄 {file_name}")
     
     # Calculate metrics
     matched = len(result.get('matched_skills', []))
@@ -3818,14 +3929,12 @@ def render_gap_analysis():
     with col1:
         st.markdown("### ✅ Matched Skills")
         for skill in result.get('matched_skills', [])[:10]:
-            # Handle both string and SkillMatch objects
             skill_name = skill.jd_skill if hasattr(skill, 'jd_skill') else skill
             st.markdown(f'<span class="skill-tag skill-matched">{skill_name}</span>', unsafe_allow_html=True)
     
     with col2:
         st.markdown("### ⚠️ Partial Matches")
         for skill in result.get('partial_matches', [])[:10]:
-            # Handle both string and SkillMatch objects
             skill_name = skill.jd_skill if hasattr(skill, 'jd_skill') else skill
             similarity = skill.similarity if hasattr(skill, 'similarity') else 0.7
             st.markdown(f'<span class="skill-tag skill-partial">{skill_name} ({similarity:.1%})</span>', unsafe_allow_html=True)
@@ -3833,12 +3942,9 @@ def render_gap_analysis():
     with col3:
         st.markdown("### ❌ Missing Skills")
         for skill in result.get('missing_skills', [])[:10]:
-            # Handle both string and SkillMatch objects
             skill_name = skill.jd_skill if hasattr(skill, 'jd_skill') else skill
             similarity = skill.similarity if hasattr(skill, 'similarity') else 0.0
             st.markdown(f'<span class="skill-tag skill-missing">{skill_name} ({similarity:.1%})</span>', unsafe_allow_html=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
     
     # High Priority Gaps
     if result.get('priority_gaps'):
@@ -3857,27 +3963,68 @@ def render_gap_analysis():
         
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # Generate Learning Path button
-    if st.button("🎓 Generate Learning Path", type="primary", use_container_width=True):
+    # Store for session for visualizations
+    st.session_state.current_resume_analysis = result
+    st.session_state.current_resume_skills = resume_skills
+    
+    # Generate Learning Path button - use unique key for each resume
+    button_key = f"learning_path_{file_name}" if file_name else "learning_path_single"
+    if st.button("🎓 Generate Learning Path", type="primary", use_container_width=True, key=button_key):
         generate_learning_path()
 
 # Step 5: Visualizations
 def render_visualizations():
-    if not st.session_state.analysis_result:
-        return
+    # Check if we have multiple resumes
+    if st.session_state.get('all_analysis_results') and len(st.session_state.all_analysis_results) > 1:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown('<div class="card-header">📈 Visual Analytics - All Resumes</div>', unsafe_allow_html=True)
+        
+        # Create tabs for each resume
+        resume_tabs = st.tabs([f"📄 {r['file_name']}" for r in st.session_state.all_analysis_results])
+        
+        for idx, (tab, resume_data) in enumerate(zip(resume_tabs, st.session_state.all_analysis_results)):
+            with tab:
+                result = resume_data['analysis']
+                resume_skills = resume_data['skills']
+                render_single_visualization(result, resume_skills)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Navigation button for multiple resumes
+        if st.session_state.get('processed_multiple_resumes'):
+            if st.button("Next ➡️ ATS Score", type="primary", use_container_width=True, key="next_ats_score_multi"):
+                st.session_state.current_step = 6
+                st.session_state.max_step_reached = 6
+                st.rerun()
+    else:
+        # Single resume - use existing display
+        result = st.session_state.get('current_resume_analysis') or st.session_state.analysis_result
+        resume_skills = st.session_state.get('current_resume_skills') or st.session_state.resume_skills
+        
+        if not result:
+            return
+        
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown('<div class="card-header">📈 Visual Analytics</div>', unsafe_allow_html=True)
+        render_single_visualization(result, resume_skills)
+        st.markdown('</div>', unsafe_allow_html=True)
     
-    result = st.session_state.analysis_result
-    
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-header">📈 Visual Analytics</div>', unsafe_allow_html=True)
-    
+    # Proceed to ATS Score
+    if not st.session_state.get('processed_multiple_resumes'):
+        if st.button("Next ➡️ ATS Score", type="primary", use_container_width=True, key="next_ats_score_single"):
+            st.session_state.current_step = 6
+            st.session_state.max_step_reached = 6
+            st.rerun()
+
+
+def render_single_visualization(result, resume_skills):
+    """Helper function to render visualizations for a single resume"""
     # Create tabs for different visualizations
     tab1, tab2, tab3, tab4 = st.tabs(["Tag Cloud", "Radar Chart", "Heatmap", "Distribution"])
     
     with tab1:
         st.subheader("Skills Tag Cloud")
-        # Create tag cloud for resume skills
-        tag_cloud_img = analyzer.visualizer.create_tag_cloud(st.session_state.resume_skills)
+        tag_cloud_img = analyzer.visualizer.create_tag_cloud(resume_skills)
         if tag_cloud_img:
             st.image(tag_cloud_img, use_container_width=True)
         else:
@@ -3886,7 +4033,7 @@ def render_visualizations():
     with tab2:
         st.subheader("Skill Category Comparison")
         radar_chart = analyzer.visualizer.create_radar_chart(
-            st.session_state.resume_skills,
+            resume_skills,
             st.session_state.jd_skills
         )
         st.plotly_chart(radar_chart, use_container_width=True)
@@ -3896,7 +4043,7 @@ def render_visualizations():
         if 'similarity_matrix' in result and result['similarity_matrix'] is not None:
             heatmap = analyzer.visualizer.create_similarity_heatmap(
                 result['similarity_matrix'],
-                [s['name'] if isinstance(s, dict) else s for s in st.session_state.resume_skills],
+                [s['name'] if isinstance(s, dict) else s for s in resume_skills],
                 [s['name'] if isinstance(s, dict) else s for s in st.session_state.jd_skills]
             )
             st.plotly_chart(heatmap, use_container_width=True)
@@ -3905,38 +4052,57 @@ def render_visualizations():
     
     with tab4:
         st.subheader("Skill Distribution")
-        dist_chart = analyzer.visualizer.create_skill_distribution(st.session_state.resume_skills)
+        dist_chart = analyzer.visualizer.create_skill_distribution(resume_skills)
         st.plotly_chart(dist_chart, use_container_width=True)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Proceed to ATS Score
-    if st.button("Next ➡️ ATS Score", type="primary", use_container_width=True):
-        st.session_state.current_step = 6
-        st.session_state.max_step_reached = 6
-        st.rerun()
 
 # Step 6: ATS Score Checker
 def render_ats_score():
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-header">🤖 ATS Score Checker</div>', unsafe_allow_html=True)
-    
-    # Calculate ATS score if not already done
-    if not st.session_state.ats_score:
-        with st.spinner("🎯 Analyzing your resume for ATS compatibility..."):
-            ats_result = analyzer.ats_checker.calculate_ats_score(
-                st.session_state.cleaned_resume,
-                st.session_state.cleaned_jd,
-                st.session_state.resume_skills,
-                st.session_state.jd_skills
-            )
-            st.session_state.ats_score = ats_result['overall_score']
-            st.session_state.ats_analysis = ats_result
+    # Check if we have multiple ATS results
+    if st.session_state.get('all_ats_results') and len(st.session_state.all_ats_results) > 1:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown('<div class="card-header">🤖 ATS Score Checker - All Resumes</div>', unsafe_allow_html=True)
+        
+        # Create tabs for each resume
+        resume_tabs = st.tabs([f"📄 {ats['file_name']}" for ats in st.session_state.all_ats_results])
+        
+        for idx, (tab, ats_data) in enumerate(zip(resume_tabs, st.session_state.all_ats_results)):
+            with tab:
+                if ats_data.get('ats_result'):
+                    render_single_ats_score(ats_data['ats_result'])
+                else:
+                    st.error(f"Error: {ats_data.get('error', 'Unknown error')}")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    else:
+        # Single resume - use existing display
+        # Calculate ATS score if not already done
+        if not st.session_state.ats_score:
+            with st.spinner("🎯 Analyzing your resume for ATS compatibility..."):
+                ats_result = analyzer.ats_checker.calculate_ats_score(
+                    st.session_state.cleaned_resume,
+                    st.session_state.cleaned_jd,
+                    st.session_state.resume_skills,
+                    st.session_state.jd_skills
+                )
+                st.session_state.ats_score = ats_result['overall_score']
+                st.session_state.ats_analysis = ats_result
+        
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown('<div class="card-header">🤖 ATS Score Checker</div>', unsafe_allow_html=True)
+        render_single_ats_score(st.session_state.ats_analysis)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+
+def render_single_ats_score(ats_analysis):
+    """Helper function to render ATS score for a single resume"""
+    if not ats_analysis:
+        st.error("No ATS analysis data available.")
+        return
     
     # Display overall ATS score with enhanced visuals
-    score = st.session_state.ats_score
+    score = ats_analysis['overall_score']
     score_percentage = int(score * 100)
-    score_category = st.session_state.ats_analysis['score_category']
+    score_category = ats_analysis['score_category']
     
     # Determine score color and text
     if score_category == 'excellent':
@@ -3974,7 +4140,7 @@ def render_ats_score():
     # Display factor scores with progress bars
     st.subheader("📊 ATS Optimization Factors")
     
-    factor_scores = st.session_state.ats_analysis['factor_scores']
+    factor_scores = ats_analysis['factor_scores']
     
     for factor_name, factor_data in factor_scores.items():
         factor_score = factor_data['score']
@@ -4011,12 +4177,12 @@ def render_ats_score():
                     st.write(f"• {rec}")
     
     # Display missing keywords with enhanced styling
-    if st.session_state.ats_analysis['missing_keywords']:
+    if ats_analysis.get('missing_keywords'):
         st.markdown("---")
         st.subheader("🔍 Missing Keywords")
         st.markdown("Consider adding these keywords from the job description to your resume:")
         
-        missing_keywords = st.session_state.ats_analysis['missing_keywords']
+        missing_keywords = ats_analysis['missing_keywords']
         keyword_html = "<div style='margin: 1rem 0;'>"
         for keyword in missing_keywords[:8]:  # Limit to 8 keywords for better display
             keyword_html += f'<span class="skill-tag skill-missing" style="margin: 0.3rem; animation: glowPoor 3s ease-in-out infinite;">{keyword}</span>'
@@ -4024,10 +4190,10 @@ def render_ats_score():
         st.markdown(keyword_html, unsafe_allow_html=True)
     
     # Display formatting issues
-    if st.session_state.ats_analysis['formatting_issues']:
+    if ats_analysis.get('formatting_issues'):
         st.markdown("---")
         st.subheader("⚙️ Formatting Issues")
-        for issue in st.session_state.ats_analysis['formatting_issues']:
+        for issue in ats_analysis['formatting_issues']:
             st.markdown(f'<div class="ats-tip">⚠️ {issue}</div>', unsafe_allow_html=True)
     
     # Enhanced ATS optimization tips
@@ -4058,16 +4224,126 @@ def render_ats_score():
 def generate_pdf_report():
     """Generate and download PDF report"""
     try:
-        html_content = analyzer.report_generator.generate_pdf_report(
-            st.session_state.resume_skills,
-            st.session_state.jd_skills,
-            st.session_state.analysis_result,
-            st.session_state.ats_score
-        )
-
-        # Convert to PDF (simplified - in production use proper PDF library)
+        # Use current resume analysis if available
+        resume_skills = st.session_state.get('current_resume_skills') or st.session_state.resume_skills
+        analysis_result = st.session_state.get('current_resume_analysis') or st.session_state.analysis_result
+        
+        if not analysis_result:
+            st.error("No analysis result available.")
+            return
+        
+        # Try to use report generator, fall back to simple HTML if it fails
+        try:
+            html_content = analyzer.report_generator.generate_pdf_report(
+                resume_skills,
+                st.session_state.jd_skills,
+                analysis_result,
+                st.session_state.ats_score
+            )
+        except Exception as e:
+            # Fall back to comprehensive HTML report for all resumes
+            html_parts = ["""
+            <html>
+            <head>
+                <title>Skill Gap Analysis Report</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 20px; }
+                    .resume-section { margin-bottom: 40px; border-bottom: 2px solid #ccc; padding-bottom: 20px; }
+                    h1 { color: #333; }
+                    h2 { color: #666; }
+                    .score { font-size: 24px; font-weight: bold; }
+                    .matched { color: green; }
+                    .missing { color: red; }
+                    .skills-list { display: flex; flex-wrap: wrap; gap: 10px; }
+                    .skill-tag { padding: 5px 10px; border-radius: 5px; }
+                    .skill-matched { background-color: #d4edda; }
+                    .skill-missing { background-color: #f8d7da; }
+                    table { border-collapse: collapse; width: 100%; }
+                    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                </style>
+            </head>
+            <body>
+                <h1>🎯 Skill Gap Analysis Report</h1>
+                <p>Generated: """]
+            
+            from datetime import datetime
+            html_parts.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            html_parts.append("</p>")
+            
+            # Job Description Skills
+            jd_skills = st.session_state.jd_skills
+            jd_skill_names = [s['name'] if isinstance(s, dict) else s for s in jd_skills]
+            html_parts.append(f"<h2>Job Description Skills ({len(jd_skill_names)})</h2>")
+            html_parts.append(f"<div class='skills-list'>")
+            for skill in jd_skill_names[:20]:
+                html_parts.append(f"<span class='skill-tag'>{skill}</span>")
+            html_parts.append("</div>")
+            
+            # Process each resume
+            resumes_data = []
+            if st.session_state.get('all_analysis_results'):
+                resumes_data = st.session_state.all_analysis_results
+            elif analysis_result:
+                resumes_data = [{
+                    'file_name': st.session_state.resume_file.name if st.session_state.get('resume_file') else 'Resume',
+                    'skills': resume_skills,
+                    'analysis': analysis_result
+                }]
+            
+            for idx, resume_data in enumerate(resumes_data):
+                file_name = resume_data.get('file_name', f'Resume {idx+1}')
+                analysis = resume_data.get('analysis')
+                
+                if not analysis:
+                    continue
+                
+                html_parts.append(f"<div class='resume-section'>")
+                html_parts.append(f"<h2>📄 {file_name}</h2>")
+                
+                # Overall Score
+                overall_score = analysis.get('overall_score', 0) * 100
+                html_parts.append(f"<p class='score'>Match Score: {overall_score:.1f}%</p>")
+                
+                # Matched Skills
+                matched = analysis.get('matched_skills', [])
+                html_parts.append(f"<h3 class='matched'>✅ Matched Skills ({len(matched)})</h3>")
+                html_parts.append("<div class='skills-list'>")
+                for skill in matched[:15]:
+                    skill_name = skill.jd_skill if hasattr(skill, 'jd_skill') else skill
+                    html_parts.append(f"<span class='skill-tag skill-matched'>{skill_name}</span>")
+                html_parts.append("</div>")
+                
+                # Missing Skills
+                missing = analysis.get('missing_skills', [])
+                html_parts.append(f"<h3 class='missing'>❌ Missing Skills ({len(missing)})</h3>")
+                html_parts.append("<div class='skills-list'>")
+                for skill in missing[:15]:
+                    skill_name = skill.jd_skill if hasattr(skill, 'jd_skill') else skill
+                    html_parts.append(f"<span class='skill-tag skill-missing'>{skill_name}</span>")
+                html_parts.append("</div>")
+                
+                # ATS Score
+                ats_score = None
+                if st.session_state.get('all_ats_results'):
+                    for ats in st.session_state.all_ats_results:
+                        if ats['file_name'] == file_name:
+                            ats_result = ats.get('ats_result')
+                            if ats_result:
+                                ats_score = ats_result.get('overall_score', 0) * 100
+                            break
+                
+                if ats_score is not None:
+                    html_parts.append(f"<p><strong>ATS Score:</strong> {ats_score:.1f}%</p>")
+                
+                html_parts.append("</div>")
+            
+            html_parts.append("</body></html>")
+            html_content = "".join(html_parts)
+        
+        # Download as HTML (can be converted to PDF)
         st.download_button(
-            label="📥 Download PDF Report",
+            label="📥 Download Report (HTML)",
             data=html_content,
             file_name=f"skill_gap_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html",
             mime="text/html",
@@ -4079,10 +4355,18 @@ def generate_pdf_report():
 def generate_csv_report():
     """Generate and download CSV report"""
     try:
+        # Use current resume analysis if available
+        resume_skills = st.session_state.get('current_resume_skills') or st.session_state.resume_skills
+        analysis_result = st.session_state.get('current_resume_analysis') or st.session_state.analysis_result
+        
+        if not analysis_result:
+            st.error("No analysis result available.")
+            return
+        
         csv_data = analyzer.report_generator.generate_csv_report(
-            st.session_state.resume_skills,
+            resume_skills,
             st.session_state.jd_skills,
-            st.session_state.analysis_result
+            analysis_result
         )
 
         df = pd.DataFrame(csv_data[1:], columns=csv_data[0])
@@ -4101,19 +4385,60 @@ def generate_csv_report():
 def generate_json_report():
     """Generate and download JSON report"""
     try:
+        # Generate comprehensive JSON report with all resume data
         report_data = {
             'timestamp': datetime.now().isoformat(),
-            'resume_skills': st.session_state.resume_skills,
-            'jd_skills': st.session_state.jd_skills,
-            'analysis_result': st.session_state.analysis_result,
-            'ats_score': st.session_state.ats_score,
-            'ats_analysis': st.session_state.ats_analysis,
-            'settings': {
-                'model': st.session_state.selected_model,
-                'confidence_threshold': st.session_state.confidence_threshold,
-                'similarity_threshold': st.session_state.similarity_threshold
+            'total_resumes': 0,
+            'resumes': [],
+            'job_description': {
+                'skills': st.session_state.jd_skills
             }
         }
+        
+        # Add all resumes data
+        if st.session_state.get('all_analysis_results'):
+            for resume_data in st.session_state.all_analysis_results:
+                analysis = resume_data.get('analysis')
+                ats_data = None
+                
+                # Find ATS data for this resume
+                if st.session_state.get('all_ats_results'):
+                    for ats in st.session_state.all_ats_results:
+                        if ats['file_name'] == resume_data['file_name']:
+                            ats_data = ats.get('ats_result')
+                            break
+                
+                report_data['resumes'].append({
+                    'file_name': resume_data['file_name'],
+                    'skills': resume_data['skills'],
+                    'analysis': {
+                        'overall_score': analysis.get('overall_score', 0) if analysis else 0,
+                        'matched_skills': analysis.get('matched_skills', []) if analysis else [],
+                        'partial_matches': analysis.get('partial_matches', []) if analysis else [],
+                        'missing_skills': analysis.get('missing_skills', []) if analysis else []
+                    },
+                    'ats_score': ats_data.get('overall_score', 0) if ats_data else 0 if ats_data else 0,
+                    'ats_analysis': ats_data
+                })
+        else:
+            # Single resume
+            resume_skills = st.session_state.get('current_resume_skills') or st.session_state.resume_skills
+            analysis_result = st.session_state.get('current_resume_analysis') or st.session_state.analysis_result
+            
+            report_data['resumes'].append({
+                'file_name': st.session_state.resume_file.name if st.session_state.get('resume_file') else 'Resume',
+                'skills': resume_skills,
+                'analysis': {
+                    'overall_score': analysis_result.get('overall_score', 0) if analysis_result else 0,
+                    'matched_skills': analysis_result.get('matched_skills', []) if analysis_result else [],
+                    'partial_matches': analysis_result.get('partial_matches', []) if analysis_result else [],
+                    'missing_skills': analysis_result.get('missing_skills', []) if analysis_result else []
+                },
+                'ats_score': st.session_state.ats_score if st.session_state.get('ats_score') else 0,
+                'ats_analysis': st.session_state.ats_analysis if st.session_state.get('ats_analysis') else None
+            })
+        
+        report_data['total_resumes'] = len(report_data['resumes'])
         
         json_report = json.dumps(report_data, indent=2, default=str)
         
@@ -4132,8 +4457,11 @@ def generate_learning_path():
     """Generate learning path based on missing skills"""
     with st.spinner("🎓 Generating personalized learning path..."):
         try:
-            missing_skills = st.session_state.analysis_result.get('missing_skills', [])
-            priority_gaps = st.session_state.analysis_result.get('priority_gaps', [])
+            # Use current resume analysis if available, otherwise fall back to single resume
+            analysis_result = st.session_state.get('current_resume_analysis') or st.session_state.analysis_result
+            
+            missing_skills = analysis_result.get('missing_skills', [])
+            priority_gaps = analysis_result.get('priority_gaps', [])
             
             # Generate learning recommendations
             learning_path = []
@@ -4172,13 +4500,37 @@ def generate_learning_path():
 
 # In render_learning_path function:
 def render_learning_path():
-    if not st.session_state.learning_path:
+    # Check if we have multiple learning paths
+    if st.session_state.get('all_learning_paths') and len(st.session_state.all_learning_paths) > 1:
+        st.markdown('<div class="card">', unsafe_allow_html=True)
+        st.markdown('<div class="card-header">🎓 Your Personalized Learning Paths</div>', unsafe_allow_html=True)
+        
+        # Create tabs for each resume
+        resume_tabs = st.tabs([f"📄 {lp['file_name']}" for lp in st.session_state.all_learning_paths])
+        
+        for idx, (tab, lp_data) in enumerate(zip(resume_tabs, st.session_state.all_learning_paths)):
+            with tab:
+                render_single_learning_path(lp_data['learning_path'], show_navigation=False)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Navigation button outside tabs
+        if st.button("Next ➡️ View Visualizations", type="primary", use_container_width=True, key="next_visualizations_multi"):
+            st.session_state.current_step = 5
+            st.session_state.max_step_reached = 5
+            st.rerun()
+    elif st.session_state.learning_path:
+        # Single resume - use existing display
+        render_single_learning_path(st.session_state.learning_path, show_navigation=True)
+
+
+def render_single_learning_path(learning_path, show_navigation=True):
+    """Helper function to render learning path for a single resume"""
+    if not learning_path:
+        st.info("No learning path available.")
         return
-    
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-header">🎓 Your Personalized Learning Path</div>', unsafe_allow_html=True)
-    
-    for i, item in enumerate(st.session_state.learning_path, 1):
+        
+    for i, item in enumerate(learning_path, 1):
         priority_color = '#dc3545' if item['priority'] == 'high' else '#ffc107' if item['priority'] == 'medium' else '#17a2b8'
         
         st.markdown(f"""
@@ -4196,13 +4548,12 @@ def render_learning_path():
         
         st.markdown("</ul></div>", unsafe_allow_html=True)
     
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Proceed to visualizations
-    if st.button("Next ➡️ View Visualizations", type="primary", use_container_width=True):
-        st.session_state.current_step = 5
-        st.session_state.max_step_reached = 5
-        st.rerun()
+    # Proceed to visualizations - only show if this is a single resume
+    if show_navigation:
+        if st.button("Next ➡️ View Visualizations", type="primary", use_container_width=True, key="next_visualizations_single"):
+            st.session_state.current_step = 5
+            st.session_state.max_step_reached = 5
+            st.rerun()
 
 # Main Application Flow
 def main():

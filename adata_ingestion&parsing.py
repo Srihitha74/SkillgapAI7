@@ -150,12 +150,20 @@ def main():
     
     with upload_col:
         st.subheader("1. Upload your Resume")
+
         uploaded_resume_files = st.file_uploader(
             "Select Resume(s) (PDF, DOCX, TXT)",
             type=['pdf', 'docx', 'txt'],
             accept_multiple_files=True,
             key="resume_uploader"
         )
+
+        # DEBUG: Test multiple file selection
+        if uploaded_resume_files:
+            st.write("Selected files:")
+            for file in uploaded_resume_files:
+                st.write(file.name)
+            st.write("Total files selected:", len(uploaded_resume_files))
 
     jd_file = None
     jd_text = None
@@ -239,7 +247,29 @@ def main():
         successful_docs = [doc for doc in st.session_state.processed_docs if doc['success']]
         
         if successful_docs:
+            # Summary of all processed documents
+            num_resumes = len([d for d in successful_docs if d['document_type'] == 'resume'])
+            num_jds = len([d for d in successful_docs if d['document_type'] == 'job_description'])
+            
             st.markdown("## Analysis Results")
+            
+            if num_resumes > 1:
+                st.info(f"📊 Processed {num_resumes} resumes and {num_jds} job description(s)")
+                
+                # Show a comparison table for all resumes
+                st.markdown("### 📋 Resume Comparison")
+                comparison_data = []
+                for doc in successful_docs:
+                    if doc['document_type'] == 'resume':
+                        comparison_data.append({
+                            'File Name': doc['file_name'],
+                            'Skills Found': len(doc['extracted_skills']),
+                            'Original Length': doc.get('original_length', 0),
+                            'Cleaned Length': doc.get('final_length', 0),
+                            'Reduction %': f"{doc.get('reduction_percentage', 0):.1f}%"
+                        })
+                if comparison_data:
+                    st.table(pd.DataFrame(comparison_data))
             
             for doc in successful_docs:
                 doc_icon = "💼" if doc['document_type'] == 'job_description' else "📄"
@@ -275,7 +305,15 @@ def main():
                         st.code(doc['cleaned_text'][:1000] + "\n\n...", language='text')
 
             extracted_data = [
-                {'filename': d['file_name'], 'type': d['document_type'], 'skills': d['extracted_skills'], 'clean_snippet': d['cleaned_text'][:300] + "..."}
+                {
+                    'filename': d['file_name'], 
+                    'type': d['document_type'], 
+                    'skills': d['extracted_skills'], 
+                    'clean_snippet': d['cleaned_text'][:300] + "...",
+                    'original_length': d.get('original_length', 0),
+                    'final_length': d.get('final_length', 0),
+                    'reduction_percentage': d.get('reduction_percentage', 0)
+                }
                 for d in successful_docs
             ]
             
