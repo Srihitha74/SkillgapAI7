@@ -20,6 +20,9 @@ def standardize_sections(text):
     return text.strip()
 
 
+def preprocess_sections(text):
+    return standardize_sections(text)
+
 def normalize_text(text):
     
     # 1. Basic cleaning (replaces tabs, cleans unicode, preserves newlines)

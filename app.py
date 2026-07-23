@@ -3833,15 +3833,16 @@ def render_skill_extraction():
 def perform_gap_analysis():
     with st.spinner("🔍 Analyzing skill gaps..."):
         try:
-            # Check if we have multiple resumes already processed
             if st.session_state.get('all_analysis_results'):
-                # Already processed during document processing
+                if len(st.session_state.all_analysis_results) == 1:
+                    st.session_state.analysis_result = st.session_state.all_analysis_results[0]['analysis']
+                    st.session_state.resume_skills = st.session_state.all_analysis_results[0]['skills']
                 st.session_state.current_step = 3
                 st.session_state.milestone3_complete = True
                 st.session_state.max_step_reached = 3
                 st.success("✅ Gap analysis complete!")
+                st.rerun()
             else:
-                # Single resume processing (backward compatibility)
                 result = analyzer.analyze_gap(st.session_state.resume_skills, st.session_state.jd_skills)
                 
                 if result:
@@ -3859,11 +3860,9 @@ def perform_gap_analysis():
 def render_gap_analysis():
     # Check if we have multiple resume results
     if st.session_state.get('all_analysis_results') and len(st.session_state.all_analysis_results) > 1:
-        # Display multiple resume results
         st.markdown('<div class="card">', unsafe_allow_html=True)
         st.markdown('<div class="card-header">📊 Skill Gap Analysis Results - All Resumes</div>', unsafe_allow_html=True)
         
-        # Create tabs for each resume
         resume_tabs = st.tabs([f"📄 {r['file_name']}" for r in st.session_state.all_analysis_results])
         
         for idx, (tab, resume_data) in enumerate(zip(resume_tabs, st.session_state.all_analysis_results)):
@@ -3872,8 +3871,10 @@ def render_gap_analysis():
                 render_single_gap_analysis(resume_data['file_name'], result, resume_data['skills'])
         
         st.markdown('</div>', unsafe_allow_html=True)
+    elif st.session_state.get('all_analysis_results') and len(st.session_state.all_analysis_results) == 1:
+        resume_data = st.session_state.all_analysis_results[0]
+        render_single_gap_analysis(resume_data['file_name'], resume_data['analysis'], resume_data['skills'])
     elif st.session_state.analysis_result:
-        # Single resume - use existing display
         render_single_gap_analysis(None, st.session_state.analysis_result, st.session_state.resume_skills)
 
 
@@ -4267,7 +4268,6 @@ def generate_pdf_report():
                 <h1>🎯 Skill Gap Analysis Report</h1>
                 <p>Generated: """]
             
-            from datetime import datetime
             html_parts.append(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
             html_parts.append("</p>")
             
@@ -4519,9 +4519,16 @@ def render_learning_path():
             st.session_state.current_step = 5
             st.session_state.max_step_reached = 5
             st.rerun()
-    elif st.session_state.learning_path:
-        # Single resume - use existing display
-        render_single_learning_path(st.session_state.learning_path, show_navigation=True)
+    elif True:
+        if st.session_state.learning_path:
+            render_single_learning_path(st.session_state.learning_path, show_navigation=False)
+        else:
+            st.info("No learning path available for this resume.")
+        
+        if st.button("Next ➡️ View Visualizations", type="primary", use_container_width=True, key="next_visualizations_single"):
+            st.session_state.current_step = 5
+            st.session_state.max_step_reached = 5
+            st.rerun()
 
 
 def render_single_learning_path(learning_path, show_navigation=True):

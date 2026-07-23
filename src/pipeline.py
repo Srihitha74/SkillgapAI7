@@ -41,7 +41,7 @@ def main():
     with open("cleaned_sri_resume.txt", "w", encoding="utf-8") as f:
         f.write(cleaned)
 
-    print("\n✅ Saved as cleaned_sri_resume.txt")
+    print("\n[Done] Saved as cleaned_sri_resume.txt")
 
 if __name__ == "__main__":
     main()
